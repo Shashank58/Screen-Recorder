@@ -8,16 +8,23 @@ import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.os.Environment
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
 import android.view.View
+import com.github.hiteshsondhi88.libffmpeg.FFmpeg
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+
+class MainActivity : AppCompatActivity, View.OnClickListener {
     private val REQUEST_PERMISSION = 2
     private var screenRecordHelper: ScreenRecordHelper? = null
+    private var ffmpeg: FFmpeg? = null
+
+    constructor() : super()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +40,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         start_recording.setOnClickListener(this)
         stop_recording.setOnClickListener(this)
+
+        val sdcard = Environment.getExternalStorageDirectory()
+        val file = File(sdcard, "video.mp4")
+
+
+        if (ffmpeg == null) {
+            ffmpeg = FFmpeg.getInstance(this)
+        }
+        TrimVideoUtils(ffmpeg).trimFile(file)
     }
 
     override fun onClick(v: View?) {

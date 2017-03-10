@@ -29,12 +29,12 @@ class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val medi
         try {
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
-            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             mediaRecorder.setOutputFile(Environment.getExternalStorageDirectory().path + "/video.mp4")
             mediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT)
             mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            mediaRecorder.setVideoEncodingBitRate(512 * 1000)
+            mediaRecorder.setVideoEncodingBitRate(3000000)
             mediaRecorder.setVideoFrameRate(30)
             val rotation = activity.windowManager.defaultDisplay.rotation
             mediaRecorder.setOrientationHint(ORIENTATION.get(rotation + 90))
