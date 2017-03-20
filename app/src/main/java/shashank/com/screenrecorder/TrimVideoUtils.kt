@@ -12,10 +12,9 @@ import java.io.File
 /**
  * Created by shashankm on 09/03/17.
  */
+class TrimVideoUtils(val ffmpeg: FFmpeg?) : TrimVideoContract {
 
-class TrimVideoUtils(val ffmpeg: FFmpeg?) {
-
-    fun trimFile(file: File) {
+    override fun trimFile(file: File) {
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -28,9 +27,14 @@ class TrimVideoUtils(val ffmpeg: FFmpeg?) {
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
-                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/croppedVideo.mp4")
-                val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", "00:00:02", "-to", "00:00:05", "-strict", "-2", "-async", "1", croppedFile.absolutePath)
-                execFFmpegCommand(command)
+                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/croppedGif.gif")
+                val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/pallet.png")
+                //val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", "00:00:10", "-to", "00:00:15", "-strict", "-2", "-async", "1", croppedFile.absolutePath)
+                val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
+                val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
+                execFFmpegCommand(palletCommand)
+                execFFmpegCommand(gitCommand)
+                //execFFmpegCommand(command)
             }
         }
     }
@@ -75,7 +79,7 @@ class TrimVideoUtils(val ffmpeg: FFmpeg?) {
 
         override fun onProgress(message: String?) {
             super.onProgress(message)
-            Log.d("ExecuteHandler", "Progresing.....")
+            Log.d("ExecuteHandler", "Progresing....." + message)
         }
     }
 }
