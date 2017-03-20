@@ -20,10 +20,11 @@ class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val medi
     private val ORIENTATION = SparseIntArray()
     private val DISPLAY_WIDTH = 720
     private val DISPLAY_HEIGHT = 1280
+    private val mediaProjectionCallback: MediaProjectionCallback = MediaProjectionCallback(this)
 
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
-    private val mediaProjectionCallback: MediaProjectionCallback = MediaProjectionCallback(this)
+    private var isRecording = false
 
     fun initRecording() {
         try {
@@ -45,6 +46,8 @@ class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val medi
         }
     }
 
+    fun isRecording(): Boolean = isRecording
+
     private fun startRecording() {
         if (mediaProjection == null) {
             activity.startActivityForResult(projectionManager.createScreenCaptureIntent(), REQUEST_CODE)
@@ -53,6 +56,7 @@ class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val medi
 
         virtualDisplay = createVirtualDisplay()
         mediaRecorder.start()
+        isRecording = true
     }
 
     private fun createVirtualDisplay(): VirtualDisplay? {
@@ -63,7 +67,7 @@ class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val medi
     fun stopRecording() {
         mediaRecorder.stop()
         mediaRecorder.reset()
-
+        isRecording = false
         if (virtualDisplay == null) {
             return
         }
@@ -87,7 +91,6 @@ class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val medi
     }
 
     private class MediaProjectionCallback(val screenRecordHelper: ScreenRecordHelper) : MediaProjection.Callback() {
-
 
         override fun onStop() {
             super.onStop()
