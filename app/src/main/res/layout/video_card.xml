@@ -21,8 +21,9 @@
             android:layout_marginTop="16dp" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
@@ -54,6 +55,15 @@
                 tools:text="03:21" />
 
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/video_options"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_more_vert"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            />
 
     </LinearLayout>
 
