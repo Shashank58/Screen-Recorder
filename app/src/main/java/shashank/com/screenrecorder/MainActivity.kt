@@ -56,9 +56,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if (ffmpeg == null) {
             ffmpeg = FFmpeg.getInstance(this)
         }
-        TrimVideoUtils(ffmpeg).trimFile(file)
-//        adapter = VideoAdapter(VideoHelper().getVideos(this))
-//        video_list.adapter = adapter
+        //TrimVideoUtils(ffmpeg).trimFile(file)
+        adapter = VideoAdapter(VideoHelper().getVideos(this))
+        video_list.adapter = adapter
     }
 
     override fun onClick(v: View?) {
@@ -132,7 +132,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             .centerCrop()
                             .into(itemView.video_thumbnail)
                     itemView.video_card.setOnClickListener {
-                        startActivity(intentFor<EditVideoActivity>())
+                        startActivity(intentFor<EditVideoActivity>("data" to video.data))
+                    }
+
+                    itemView.video_options.setOnClickListener {
+
                     }
                 }
             }
