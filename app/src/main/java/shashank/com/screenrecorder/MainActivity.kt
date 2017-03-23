@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             .centerCrop()
                             .into(itemView.video_thumbnail)
                     itemView.video_card.setOnClickListener {
-                        startActivity(intentFor<EditVideoActivity>("data" to video.data))
+                        startActivity(intentFor<EditVideoActivity>("data" to video.data, "duration" to duration))
                     }
 
                     itemView.video_options.setOnClickListener {

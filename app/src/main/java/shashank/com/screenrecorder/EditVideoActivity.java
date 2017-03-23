@@ -27,16 +27,40 @@ public class EditVideoActivity extends AppCompatActivity {
         seekBar = (SeekBar) findViewById(R.id.seek_bar);
 
         video.setVideoURI(Uri.parse(data));
-        seekBar.setMax(video.getDuration());
-        handler.postDelayed(runnable, 100);
         video.start();
+        seekBar.setMax((int) getIntent().getLongExtra("duration", 0));
+        seekUpdation();
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    video.seekTo(progress);
+                    seekBar.setProgress(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            seekBar.setProgress(video.getCurrentPosition());
-            handler.postDelayed(this, 100);
+            seekUpdation();
         }
     };
+
+    private void seekUpdation() {
+        seekBar.setProgress(video.getCurrentPosition());
+        handler.postDelayed(runnable, 1000);
+    }
 }
