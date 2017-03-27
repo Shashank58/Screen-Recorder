@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomRange">
+        <attr name="nonSelectedColor" format="color"/>
+        <attr name="selectedColor" format="color"/>
+        <attr name="holderColor" format="color"/>
+        <attr name="holderWidth" format="dimension"/>
+        <attr name="minValue" format="float" />
+        <attr name="maxValue" format="float" />
+    </declare-styleable>
+</resources>
