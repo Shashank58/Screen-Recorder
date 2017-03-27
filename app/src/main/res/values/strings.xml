@@ -4,4 +4,5 @@
     <string name="stop_recording">Stop Recording</string>
     <string name="start_record">Start screen record</string>
     <string name="stop_record">Stop screen record</string>
+    <string name="save">Save</string>
 </resources>
