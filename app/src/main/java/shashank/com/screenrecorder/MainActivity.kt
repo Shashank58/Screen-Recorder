@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
-import com.github.hiteshsondhi88.libffmpeg.FFmpeg
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.video_card.view.*
 import org.jetbrains.anko.intentFor
@@ -32,7 +31,7 @@ import java.util.*
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val REQUEST_PERMISSION = 2
     private var screenRecordHelper: ScreenRecordHelper? = null
-    private var ffmpeg: FFmpeg? = null
+
     private var adapter: VideoAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,9 +52,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val sdcard = Environment.getExternalStorageDirectory()
         val file = File(sdcard, "croppedFile.mp4")
 
-        if (ffmpeg == null) {
-            ffmpeg = FFmpeg.getInstance(this)
-        }
         //TrimVideoUtils(ffmpeg).trimFile(file)
         adapter = VideoAdapter(VideoHelper().getVideos(this))
         video_list.adapter = adapter

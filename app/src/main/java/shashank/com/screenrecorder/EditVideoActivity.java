@@ -4,17 +4,27 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.VideoView;
+
+import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
+
+import java.io.File;
+import java.util.Locale;
 
 
 /**
  * Created by shashankm on 23/03/17.
  */
 
-public class EditVideoActivity extends AppCompatActivity implements CustomRange.RangeChangeListener {
+public class EditVideoActivity extends AppCompatActivity implements CustomRange.RangeChangeListener,
+    View.OnClickListener {
+    private static final String TAG = EditVideoActivity.class.getSimpleName();
     private Handler handler = new Handler();
 
     private VideoView video;
@@ -22,13 +32,15 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
     private CustomRange rangePicker;
     private ImageView playPause;
     private final Handler hideHandler = new Handler();
+    private FFmpeg ffmpeg;
+    private String data;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_video);
 
-        String data = getIntent().getStringExtra("data");
+        data = getIntent().getStringExtra("data");
         video = (VideoView) findViewById(R.id.video);
         seekBar = (SeekBar) findViewById(R.id.seek_bar);
         rangePicker = (CustomRange) findViewById(R.id.video_range_picker);
@@ -42,9 +54,14 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
         rangePicker.setMinValue(0);
         rangePicker.setMaxValue(duration);
         rangePicker.setRangeChangeListener(this);
+        Log.d(TAG, "onCreate: max - " + rangePicker.getMaxValue());
 
         seekUpdation();
         hidePlayPause();
+
+        if (ffmpeg == null) {
+            ffmpeg = FFmpeg.getInstance(this);
+        }
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -66,20 +83,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
             }
         });
 
-        videoContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playPause.setVisibility(View.VISIBLE);
-                if (video.isPlaying()) {
-                    video.pause();
-                    playPause.setImageResource(R.drawable.ic_play_arrow);
-                } else {
-                    video.start();
-                    playPause.setImageResource(R.drawable.ic_pause);
-                    hidePlayPause();
-                }
-            }
-        });
+        videoContainer.setOnClickListener(this);
     }
 
     private void hidePlayPause() {
@@ -108,5 +112,55 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
     private void seekUpdation() {
         seekBar.setProgress(video.getCurrentPosition());
         handler.postDelayed(runnable, 1000);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.edit_video_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.save:
+                TrimVideoUtils trimVideoUtils = new TrimVideoUtils(ffmpeg);
+
+                String startTime = getDate(rangePicker.getStartValue());
+                String endTime = getDate(rangePicker.getEndValue());
+                Log.d(TAG, "onOptionsItemSelected: " + startTime);
+                Log.d(TAG, "onOptionsItemSelected: " + endTime);
+                trimVideoUtils.trimFile(new File(Uri.parse(data).getPath()), startTime, endTime);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    private String getDate(float value) {
+        int secs = (int) (value / 1000);
+        int mins = secs / 60;
+        int hours = mins / 60;
+        return String.format(Locale.getDefault(), "%02d", hours) + ":" + String.format(Locale.getDefault(),
+                "%02d", mins) + ":" + String.format(Locale.getDefault(), "%02d", secs % 60);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.video_container:
+                playPause.setVisibility(View.VISIBLE);
+                if (video.isPlaying()) {
+                    video.pause();
+                    playPause.setImageResource(R.drawable.ic_play_arrow);
+                } else {
+                    video.start();
+                    playPause.setImageResource(R.drawable.ic_pause);
+                    hidePlayPause();
+                }
+                break;
+        }
     }
 }

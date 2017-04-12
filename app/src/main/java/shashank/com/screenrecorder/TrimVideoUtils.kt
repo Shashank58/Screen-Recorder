@@ -14,7 +14,7 @@ import java.io.File
  */
 class TrimVideoUtils(val ffmpeg: FFmpeg?) : TrimVideoContract {
 
-    override fun trimFile(file: File) {
+    override fun trimFile(file: File, start: String, end: String) {
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -27,14 +27,14 @@ class TrimVideoUtils(val ffmpeg: FFmpeg?) : TrimVideoContract {
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
-                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/croppedGif.gif")
+                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/croppedGif.mp4")
                 val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/pallet.png")
-                //val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", "00:00:10", "-to", "00:00:15", "-strict", "-2", "-async", "1", croppedFile.absolutePath)
-                val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
-                val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
-                execFFmpegCommand(palletCommand)
-                execFFmpegCommand(gitCommand)
-                //execFFmpegCommand(command)
+                val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", start, "-to", end, "-strict", "-2", "-async", "1", croppedFile.absolutePath)
+                //val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
+                //val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
+                //execFFmpegCommand(palletCommand)
+                //execFFmpegCommand(gitCommand)
+                execFFmpegCommand(command)
             }
         }
     }

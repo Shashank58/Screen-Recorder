@@ -42,9 +42,9 @@ public class CustomRange extends View implements View.OnTouchListener {
         START, END, NOT_DEFINED
     }
 
-    private int startPosition = 0;
+    private float startPosition = 0;
 
-    private int endPosition = 100;
+    private float endPosition = 100;
 
     private DragPosition draggingPosition = DragPosition.NOT_DEFINED;
 
@@ -92,8 +92,8 @@ public class CustomRange extends View implements View.OnTouchListener {
     protected void onDraw(Canvas canvas) {
         int height = getHeight();
         int halfHeight = getHeight() / 2;
-        int startX = getWidth() * startPosition / 100;
-        int endX = getWidth() * endPosition / 100;
+        int startX = (int) (getWidth() * startPosition / 100);
+        int endX = (int) (getWidth() * endPosition / 100);
 
         // draw the part of the bar that's filled
         // noinspection SuspiciousNameCombination
@@ -186,11 +186,11 @@ public class CustomRange extends View implements View.OnTouchListener {
     }
 
     public float getStartValue() {
-        return (startPosition / 100 ) * maxValue;
+        return (startPosition / 100f ) * maxValue;
     }
 
     public float getEndValue() {
-        return (endPosition / 100) * maxValue;
+        return (endPosition / 100f) * maxValue;
     }
 
     private boolean isCloseToStart(int percent) {
