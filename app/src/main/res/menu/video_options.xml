@@ -4,6 +4,12 @@
     <item
         android:id="@+id/convert_to_gif"
         android:title="@string/convert_to_gif"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/slow_video"
+        android:title="@string/slow_motion"
         app:showAsAction="always"
         />
 </menu>

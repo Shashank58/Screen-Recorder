@@ -13,7 +13,7 @@ import java.io.File
 /**
  * Created by shashankm on 09/03/17.
  */
-class EditVideoUtils(context: Context) : TrimVideoContract {
+class EditVideoUtils(context: Context) : EditVideoContract {
     var ffmpeg: FFmpeg? = null
 
     init {
@@ -60,6 +60,26 @@ class EditVideoUtils(context: Context) : TrimVideoContract {
                 val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
                 val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
                 execFFmpegCommand(palletCommand)
+                execFFmpegCommand(gitCommand)
+            }
+        }
+    }
+
+    override fun slowDownVideo(file: File) {
+        doAsync {
+            try {
+                val loadResponse: Load = Load()
+                ffmpeg?.loadBinary(loadResponse)
+            } catch (e: FFmpegNotSupportedException) {
+                e.printStackTrace()
+                Log.d("FFMPEG", "ffmpeg : Not supported")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.d("FFMPEG", "ffmpeg : Exception")
+            }
+            uiThread {
+                val slowedVideo: File = File(Environment.getExternalStorageDirectory().absolutePath + "/slowedVideo.mp4")
+                val gitCommand = arrayOf("-i", file.absolutePath, "-r", "16", "-filter:v", "setpts=3.0*PTS", slowedVideo.absolutePath)
                 execFFmpegCommand(gitCommand)
             }
         }

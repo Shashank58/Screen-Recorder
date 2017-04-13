@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var screenRecordHelper: ScreenRecordHelper? = null
 
     private var adapter: VideoAdapter? = null
+    private var editVideo: EditVideoContract? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +46,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val screenDensity = displayMetrics.densityDpi
         screenRecordHelper = ScreenRecordHelper(projectionManager, mediaRecorder, this, screenDensity)
+        editVideo = EditVideoUtils(this)
 
         video_list.layoutManager = LinearLayoutManager(this@MainActivity)
         toggle_screen_record.setOnClickListener(this)
@@ -133,7 +135,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         popUpMenu.setOnMenuItemClickListener {
                             when(it.itemId) {
                                 R.id.convert_to_gif -> {
-                                    convertToGif(video)
+                                    editVideo?.convertVideoToGif(File(Uri.parse(video.data).path))
+                                    true
+                                }
+                                R.id.slow_video -> {
+                                    editVideo?.slowDownVideo(File(Uri.parse(video.data).path))
                                     true
                                 }
                                 else -> true
@@ -143,10 +149,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }
             }
-        }
-
-        private fun convertToGif(video: Video) {
-            EditVideoUtils(this@MainActivity).convertVideoToGif(File(Uri.parse(video.data).path))
         }
     }
 }
