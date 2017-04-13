@@ -5,4 +5,5 @@
     <string name="start_record">Start screen record</string>
     <string name="stop_record">Stop screen record</string>
     <string name="save">Save</string>
+    <string name="convert_to_gif">Convert to gif</string>
 </resources>

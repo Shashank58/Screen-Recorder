@@ -9,11 +9,11 @@ import android.media.MediaRecorder
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -49,10 +49,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         video_list.layoutManager = LinearLayoutManager(this@MainActivity)
         toggle_screen_record.setOnClickListener(this)
 
-        val sdcard = Environment.getExternalStorageDirectory()
-        val file = File(sdcard, "croppedFile.mp4")
-
-        //TrimVideoUtils(ffmpeg).trimFile(file)
         adapter = VideoAdapter(VideoHelper().getVideos(this))
         video_list.adapter = adapter
     }
@@ -132,10 +128,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     }
 
                     itemView.video_options.setOnClickListener {
-
+                        val popUpMenu: PopupMenu = PopupMenu(this@MainActivity, itemView.video_options)
+                        popUpMenu.menuInflater.inflate(R.menu.video_options, popUpMenu.menu)
+                        popUpMenu.setOnMenuItemClickListener {
+                            when(it.itemId) {
+                                R.id.convert_to_gif -> {
+                                    convertToGif(video)
+                                    true
+                                }
+                                else -> true
+                            }
+                        }
+                        popUpMenu.show()
                     }
                 }
             }
+        }
+
+        private fun convertToGif(video: Video) {
+            EditVideoUtils(this@MainActivity).convertVideoToGif(File(Uri.parse(video.data).path))
         }
     }
 }

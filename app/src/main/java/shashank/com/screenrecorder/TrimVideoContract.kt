@@ -7,4 +7,6 @@ import java.io.File
  */
 interface TrimVideoContract {
     fun trimFile(file: File, start: String, end: String)
+
+    fun convertVideoToGif(file: File)
 }

@@ -1,5 +1,6 @@
 package shashank.com.screenrecorder
 
+import android.content.Context
 import android.os.Environment
 import android.util.Log
 import com.github.hiteshsondhi88.libffmpeg.*
@@ -12,7 +13,14 @@ import java.io.File
 /**
  * Created by shashankm on 09/03/17.
  */
-class TrimVideoUtils(val ffmpeg: FFmpeg?) : TrimVideoContract {
+class EditVideoUtils(context: Context) : TrimVideoContract {
+    var ffmpeg: FFmpeg? = null
+
+    init {
+        if (ffmpeg == null) {
+            ffmpeg = FFmpeg.getInstance(context)
+        }
+    }
 
     override fun trimFile(file: File, start: String, end: String) {
         doAsync {
@@ -28,13 +36,31 @@ class TrimVideoUtils(val ffmpeg: FFmpeg?) : TrimVideoContract {
             }
             uiThread {
                 val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/croppedGif.mp4")
-                val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/pallet.png")
                 val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", start, "-to", end, "-strict", "-2", "-async", "1", croppedFile.absolutePath)
-                //val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
-                //val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
-                //execFFmpegCommand(palletCommand)
-                //execFFmpegCommand(gitCommand)
                 execFFmpegCommand(command)
+            }
+        }
+    }
+
+    override fun convertVideoToGif(file: File) {
+        doAsync {
+            try {
+                val loadResponse: Load = Load()
+                ffmpeg?.loadBinary(loadResponse)
+            } catch (e: FFmpegNotSupportedException) {
+                e.printStackTrace()
+                Log.d("FFMPEG", "ffmpeg : Not supported")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.d("FFMPEG", "ffmpeg : Exception")
+            }
+            uiThread {
+                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/croppedGif.gif")
+                val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/pallet.png")
+                val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
+                val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
+                execFFmpegCommand(palletCommand)
+                execFFmpegCommand(gitCommand)
             }
         }
     }

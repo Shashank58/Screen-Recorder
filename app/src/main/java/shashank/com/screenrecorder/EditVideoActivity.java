@@ -12,8 +12,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.VideoView;
 
-import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
-
 import java.io.File;
 import java.util.Locale;
 
@@ -32,7 +30,6 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
     private CustomRange rangePicker;
     private ImageView playPause;
     private final Handler hideHandler = new Handler();
-    private FFmpeg ffmpeg;
     private String data;
 
     @Override
@@ -58,10 +55,6 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
 
         seekUpdation();
         hidePlayPause();
-
-        if (ffmpeg == null) {
-            ffmpeg = FFmpeg.getInstance(this);
-        }
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -124,13 +117,13 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save:
-                TrimVideoUtils trimVideoUtils = new TrimVideoUtils(ffmpeg);
+                EditVideoUtils editVideoUtils = new EditVideoUtils(this);
 
                 String startTime = getDate(rangePicker.getStartValue());
                 String endTime = getDate(rangePicker.getEndValue());
                 Log.d(TAG, "onOptionsItemSelected: " + startTime);
                 Log.d(TAG, "onOptionsItemSelected: " + endTime);
-                trimVideoUtils.trimFile(new File(Uri.parse(data).getPath()), startTime, endTime);
+                editVideoUtils.trimFile(new File(Uri.parse(data).getPath()), startTime, endTime);
                 return true;
 
             default:
