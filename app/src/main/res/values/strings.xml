@@ -6,5 +6,11 @@
     <string name="stop_record">Stop screen record</string>
     <string name="save">Save</string>
     <string name="convert_to_gif">Convert to gif</string>
-    <string name="slow_motion">Slow motion</string>
+    <string name="slow_motion">Slow Motion</string>
+    <string name="record_screen">Record Screen</string>
+    <string name="edit_video">Edit Video</string>
+    <string name="trim_your_videos_and_save_them_as_mp4_3gp_or_gif">Trim your videos and save them as mp4, 3gp or gif</string>
+    <string name="slow_down_your_videos_for_dramatic_effect">Slow down your videos for and feel the difference!</string>
+    <string name="records_your_mobile_screen_and_saves_as_an_mp4">Records your mobile screen and saves as an mp4</string>
+    <string name="videos">Videos</string>
 </resources>
