@@ -1,13 +1,12 @@
 package shashank.com.screenrecorder;
 
+import android.app.ProgressDialog;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -32,6 +31,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
     private ImageView playPause;
     private final Handler hideHandler = new Handler();
     private String data;
+    private ProgressDialog progressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,6 +44,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
         rangePicker = (CustomRange) findViewById(R.id.video_range_picker);
         playPause = (ImageView) findViewById(R.id.play_pause);
         View videoContainer = findViewById(R.id.video_container);
+        View trimVideo = findViewById(R.id.trim_video);
 
         int duration = (int) getIntent().getLongExtra("duration", 0);
         video.setVideoURI(Uri.parse(data));
@@ -78,6 +79,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
         });
 
         videoContainer.setOnClickListener(this);
+        trimVideo.setOnClickListener(this);
     }
 
     private void hidePlayPause() {
@@ -108,31 +110,6 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
         handler.postDelayed(runnable, 1000);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.edit_video_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.save:
-                EditVideoUtils editVideoUtils = new EditVideoUtils(this, this);
-
-                String startTime = getDate(rangePicker.getStartValue());
-                String endTime = getDate(rangePicker.getEndValue());
-                Log.d(TAG, "onOptionsItemSelected: " + startTime);
-                Log.d(TAG, "onOptionsItemSelected: " + endTime);
-                editVideoUtils.trimFile(new File(Uri.parse(data).getPath()), startTime, endTime);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-    }
-
     private String getDate(float value) {
         int secs = (int) (value / 1000);
         int mins = secs / 60;
@@ -155,21 +132,34 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
                     hidePlayPause();
                 }
                 break;
+
+            case R.id.trim_video:
+                EditVideoUtils editVideoUtils = new EditVideoUtils(this, this);
+
+                String startTime = getDate(rangePicker.getStartValue());
+                String endTime = getDate(rangePicker.getEndValue());
+                editVideoUtils.trimFile(new File(Uri.parse(data).getPath()), startTime, endTime);
+                break;
         }
     }
 
     @Override
     public void showProgress(@NonNull String title, @NonNull String message) {
-
+        progressDialog = ProgressDialog.show(this, title, message);
+        progressDialog.show();
     }
 
     @Override
     public void finishedSuccessFully() {
-
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
     }
 
     @Override
     public void onFailure(@NonNull String message) {
-
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
     }
 }

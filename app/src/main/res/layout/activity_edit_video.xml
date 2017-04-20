@@ -5,8 +5,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#212121"
     >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="36dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_action_left"
+            android:layout_gravity="center_vertical"
+            android:padding="6dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginStart="72dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/trim_video"
+            android:textColor="@color/white"
+            />
+
+        <ImageView
+            android:id="@+id/trim_video"
+            android:layout_width="36dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_content_cut"
+            android:layout_gravity="center_vertical|end"
+            android:padding="6dp"
+            android:tint="@color/white"
+            />
+
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/video_container"

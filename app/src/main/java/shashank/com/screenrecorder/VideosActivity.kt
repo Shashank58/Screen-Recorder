@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnticipateOvershootInterpolator
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_videos.*
 import kotlinx.android.synthetic.main.video_card.view.*
@@ -66,6 +67,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
         override fun getItemCount(): Int = videoList.size
 
         inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+            val interpolator: AnticipateOvershootInterpolator = AnticipateOvershootInterpolator()
 
             fun bind(video: Video) {
                 with(video) {
@@ -84,7 +86,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
                             startActivity(intentFor<EditVideoActivity>("data" to video.data, "duration" to duration))
                         } else {
                             quality_popup.visibility = View.VISIBLE
-                            quality_popup.animate().setListener(null).scaleY(1f).scaleX(1f).start()
+                            quality_popup.animate().setInterpolator(interpolator).setListener(null).scaleY(1f).scaleX(1f).start()
                             blur.visibility = View.VISIBLE
 
                             blur.setOnClickListener {
@@ -134,7 +136,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
 
                             }
 
-                        })
+                        }).setInterpolator(interpolator)
                         .scaleY(0f).scaleX(0f).start()
 
             }
