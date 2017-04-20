@@ -19,7 +19,7 @@ class VideoHelper {
         while (cursor.moveToNext()) {
             val data = cursor.getString(0)
             val added = cursor.getLong(1)
-            val name = cursor.getString(2)
+            val name: String? = cursor.getString(2)
             val duration = cursor.getLong(3)
             videoList.add(Video(data, added, name, duration))
         }

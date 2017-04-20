@@ -6,7 +6,7 @@ import android.os.Parcelable
 /**
  * Created by shashankm on 10/03/17.
  */
-data class Video(val data: String, val addedOn: Long, val name: String, val duration: Long) : Parcelable {
+data class Video(val data: String, val addedOn: Long, val name: String?, val duration: Long) : Parcelable {
 
     constructor(source: Parcel) : this(source.readString(), source.readLong(), source.readString(), source.readLong())
 
