@@ -10,5 +10,13 @@ interface EditVideoContract {
 
     fun convertVideoToGif(file: File)
 
-    fun slowDownVideo(file: File)
+    fun slowDownVideo(file: File, quality: String)
+
+    interface Response {
+        fun showProgress(title: String, message: String)
+
+        fun finishedSuccessFully()
+
+        fun onFailure(message: String)
+    }
 }

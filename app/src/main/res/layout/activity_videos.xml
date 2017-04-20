@@ -33,15 +33,118 @@
 
     </FrameLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/video_list"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:clipToPadding="false"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/video_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:clipToPadding="false"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            />
+
+        <View
+            android:id="@+id/blur"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#000000"
+            android:alpha="0.4"
+            android:visibility="gone"
+            />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/quality_popup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="36dp"
+            app:cardElevation="8dp"
+            android:layout_gravity="center"
+            android:scaleX="0"
+            android:scaleY="0"
+            android:visibility="gone"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/choose_video_quality"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:textColor="#212121"
+                    />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#BDBDBD"
+                    />
+
+                <TextView
+                    android:id="@+id/low"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Low"
+                    android:textSize="16sp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="12dp"
+                    android:textColor="#212121"
+                    />
+
+                <TextView
+                    android:id="@+id/medium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Medium"
+                    android:textSize="16sp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="12dp"
+                    android:textColor="#212121"
+                    />
+
+                <TextView
+                    android:id="@+id/high"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="High"
+                    android:textSize="16sp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="12dp"
+                    android:textColor="#212121"
+                    />
+
+                <TextView
+                    android:id="@+id/very_high"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Very high"
+                    android:textSize="16sp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="12dp"
+                    android:textColor="#212121"
+                    />
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+    </FrameLayout>
 
 </LinearLayout>

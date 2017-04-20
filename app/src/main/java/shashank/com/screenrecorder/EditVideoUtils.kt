@@ -13,7 +13,7 @@ import java.io.File
 /**
  * Created by shashankm on 09/03/17.
  */
-class EditVideoUtils(context: Context) : EditVideoContract {
+class EditVideoUtils(context: Context, val response: EditVideoContract.Response) : EditVideoContract {
     var ffmpeg: FFmpeg? = null
 
     init {
@@ -23,6 +23,7 @@ class EditVideoUtils(context: Context) : EditVideoContract {
     }
 
     override fun trimFile(file: File, start: String, end: String) {
+        response.showProgress("Trimming", "Yup working on it!")
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -35,7 +36,7 @@ class EditVideoUtils(context: Context) : EditVideoContract {
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
-                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/croppedGif.mp4")
+                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() +".mp4")
                 val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", start, "-to", end, "-strict", "-2", "-async", "1", croppedFile.absolutePath)
                 execFFmpegCommand(command)
             }
@@ -43,6 +44,7 @@ class EditVideoUtils(context: Context) : EditVideoContract {
     }
 
     override fun convertVideoToGif(file: File) {
+        response.showProgress("Converting", "Working our magic!")
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -55,7 +57,7 @@ class EditVideoUtils(context: Context) : EditVideoContract {
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
-                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/croppedGif.gif")
+                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".gif")
                 val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/pallet.png")
                 val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
                 val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
@@ -65,7 +67,8 @@ class EditVideoUtils(context: Context) : EditVideoContract {
         }
     }
 
-    override fun slowDownVideo(file: File) {
+    override fun slowDownVideo(file: File, quality: String) {
+        response.showProgress("Converting", "Slowing it down!")
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -78,8 +81,8 @@ class EditVideoUtils(context: Context) : EditVideoContract {
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
-                val slowedVideo: File = File(Environment.getExternalStorageDirectory().absolutePath + "/slowedVideo.mp4")
-                val gitCommand = arrayOf("-i", file.absolutePath, "-r", "16", "-filter:v", "setpts=3.0*PTS", slowedVideo.absolutePath)
+                val slowedVideo: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".mp4")
+                val gitCommand = arrayOf("-i", file.absolutePath, "-r", quality, "-filter:v", "setpts=4.0*PTS", "-preset", "ultrafast", slowedVideo.absolutePath)
                 execFFmpegCommand(gitCommand)
             }
         }
@@ -92,13 +95,13 @@ class EditVideoUtils(context: Context) : EditVideoContract {
         } catch (e: FFmpegCommandAlreadyRunningException) {
             e.printStackTrace()
         }
-
     }
 
-    private class Load : LoadBinaryResponseHandler(), FFmpegLoadBinaryResponseHandler {
+    private inner class Load : LoadBinaryResponseHandler(), FFmpegLoadBinaryResponseHandler {
         override fun onFailure() {
             super.onFailure()
             Log.d("FFMPEG", "ffmpeg : Failure")
+            response.onFailure("Failed!")
         }
 
         override fun onSuccess() {
@@ -107,9 +110,11 @@ class EditVideoUtils(context: Context) : EditVideoContract {
         }
     }
 
-    private class ExecuteHandler : ExecuteBinaryResponseHandler(), FFmpegExecuteResponseHandler {
+    private inner class ExecuteHandler : ExecuteBinaryResponseHandler(), FFmpegExecuteResponseHandler {
+
         override fun onFailure(message: String?) {
             super.onFailure(message)
+            response.onFailure("Could not perform said action!")
             Log.d("ExecuteHandler", "ffmpeg : Failure " + message)
         }
 
@@ -120,6 +125,7 @@ class EditVideoUtils(context: Context) : EditVideoContract {
 
         override fun onSuccess(message: String?) {
             super.onSuccess(message)
+            response.finishedSuccessFully()
             Log.d("ExecuteHandler", "ffmpeg : SUCCESS!")
         }
 

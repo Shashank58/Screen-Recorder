@@ -3,6 +3,7 @@ package shashank.com.screenrecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -21,7 +22,7 @@ import java.util.Locale;
  */
 
 public class EditVideoActivity extends AppCompatActivity implements CustomRange.RangeChangeListener,
-    View.OnClickListener {
+    View.OnClickListener, EditVideoContract.Response {
     private static final String TAG = EditVideoActivity.class.getSimpleName();
     private Handler handler = new Handler();
 
@@ -117,7 +118,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save:
-                EditVideoUtils editVideoUtils = new EditVideoUtils(this);
+                EditVideoUtils editVideoUtils = new EditVideoUtils(this, this);
 
                 String startTime = getDate(rangePicker.getStartValue());
                 String endTime = getDate(rangePicker.getEndValue());
@@ -155,5 +156,20 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
                 }
                 break;
         }
+    }
+
+    @Override
+    public void showProgress(@NonNull String title, @NonNull String message) {
+
+    }
+
+    @Override
+    public void finishedSuccessFully() {
+
+    }
+
+    @Override
+    public void onFailure(@NonNull String message) {
+
     }
 }

@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                                             }
 
                                             override fun onAnimationEnd(animation: Animator?) {
-                                                startActivity(intentFor<VideosActivity>())
+                                                startActivity(intentFor<VideosActivity>("purpose" to 0))
                                             }
 
                                             override fun onAnimationStart(animation: Animator?) {
@@ -180,7 +180,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                                             }
 
                                             override fun onAnimationEnd(animation: Animator?) {
-                                                startActivity(intentFor<VideosActivity>())
+                                                startActivity(intentFor<VideosActivity>("purpose" to 1))
                                             }
 
                                             override fun onAnimationStart(animation: Animator?) {
