@@ -10,11 +10,12 @@ import android.os.Environment
 import android.util.SparseIntArray
 import java.io.IOException
 
+
+
 /**
  * Created by shashankm on 02/03/17.
  */
-class ScreenRecordHelper (val projectionManager: MediaProjectionManager, val mediaRecorder: MediaRecorder, val
-            activity: MainActivity, val screenDensity: Int, val recordContract: RecordContract) {
+object ScreenRecordHelper  {
     val REQUEST_CODE = 1
 
     private val ORIENTATION = SparseIntArray()
@@ -25,26 +26,40 @@ class ScreenRecordHelper (val projectionManager: MediaProjectionManager, val med
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var isRecording = false
+    private var projectionManager: MediaProjectionManager? = null
+    private var mediaRecorder: MediaRecorder? = null
+    private var activity: MainActivity? = null
+    private var screenDensity: Int = 0
+    private var recordContract: RecordContract? = null
 
     interface RecordContract {
         fun onRecordingStarted()
     }
 
+    fun init (projectionManager: MediaProjectionManager, mediaRecorder: MediaRecorder, activity: MainActivity,
+              screenDensity: Int, recordContract: RecordContract) {
+        this.projectionManager = projectionManager
+        this.mediaRecorder = mediaRecorder
+        this.activity = activity
+        this.screenDensity = screenDensity
+        this.recordContract = recordContract
+    }
+
     fun initRecording() {
         try {
-            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-            mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
-            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            mediaRecorder.setOutputFile(Environment.getExternalStorageDirectory().path + "/"+ System
+            mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
+            mediaRecorder!!.setVideoSource(MediaRecorder.VideoSource.SURFACE)
+            mediaRecorder!!.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            mediaRecorder!!.setOutputFile(Environment.getExternalStorageDirectory().path + "/"+ System
                     .currentTimeMillis() +".mp4")
-            mediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT)
-            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            mediaRecorder.setVideoEncodingBitRate(3000000)
-            mediaRecorder.setVideoFrameRate(30)
-            val rotation = activity.windowManager.defaultDisplay.rotation
-            mediaRecorder.setOrientationHint(ORIENTATION.get(rotation + 90))
-            mediaRecorder.prepare()
+            mediaRecorder!!.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT)
+            mediaRecorder!!.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+            mediaRecorder!!.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            mediaRecorder!!.setVideoEncodingBitRate(3000000)
+            mediaRecorder!!.setVideoFrameRate(30)
+            val rotation = activity!!.windowManager.defaultDisplay.rotation
+            mediaRecorder!!.setOrientationHint(ORIENTATION.get(rotation + 90))
+            mediaRecorder!!.prepare()
             startRecording()
         } catch (e: IOException) {
             e.printStackTrace()
@@ -55,24 +70,26 @@ class ScreenRecordHelper (val projectionManager: MediaProjectionManager, val med
 
     private fun startRecording() {
         if (mediaProjection == null) {
-            activity.startActivityForResult(projectionManager.createScreenCaptureIntent(), REQUEST_CODE)
+            activity!!.startActivityForResult(projectionManager!!.createScreenCaptureIntent(), REQUEST_CODE)
             return
         }
 
         virtualDisplay = createVirtualDisplay()
-        mediaRecorder.start()
-        recordContract.onRecordingStarted()
+        mediaRecorder!!.start()
+        recordContract!!.onRecordingStarted()
         isRecording = true
     }
 
     private fun createVirtualDisplay(): VirtualDisplay? {
         return mediaProjection?.createVirtualDisplay("Main Activity", DISPLAY_WIDTH, DISPLAY_HEIGHT, screenDensity,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder.surface, null, null)
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder!!.surface, null, null)
     }
 
     fun stopRecording() {
-        mediaRecorder.stop()
-        mediaRecorder.reset()
+        if (mediaRecorder == null) return
+
+        mediaRecorder!!.stop()
+        mediaRecorder!!.reset()
         isRecording = false
         if (virtualDisplay == null) {
             return
@@ -82,8 +99,22 @@ class ScreenRecordHelper (val projectionManager: MediaProjectionManager, val med
         destroyMediaProjection()
     }
 
+    fun pauseRecorder() {
+        if (mediaRecorder != null) {
+            mediaRecorder?.stop()
+            isRecording = false
+        }
+    }
+
+    fun resumeRecorder() {
+        if (mediaRecorder != null) {
+            mediaRecorder?.start()
+            isRecording = true
+        }
+    }
+
     fun registerMediaProjection(resultCode: Int, data: Intent?) {
-        mediaProjection = projectionManager.getMediaProjection(resultCode, data)
+        mediaProjection = projectionManager!!.getMediaProjection(resultCode, data)
         mediaProjection?.registerCallback(mediaProjectionCallback, null)
         startRecording()
     }
@@ -100,8 +131,8 @@ class ScreenRecordHelper (val projectionManager: MediaProjectionManager, val med
 
         override fun onStop() {
             super.onStop()
-            screenRecordHelper.mediaRecorder.stop()
-            screenRecordHelper.mediaRecorder.reset()
+            screenRecordHelper.mediaRecorder!!.stop()
+            screenRecordHelper.mediaRecorder!!.reset()
 
             screenRecordHelper.mediaProjection = null
             screenRecordHelper.stopScreenSharing()

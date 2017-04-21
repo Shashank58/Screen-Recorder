@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
@@ -23,7 +24,7 @@ import org.jetbrains.anko.intentFor
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelper.RecordContract {
     private val REQUEST_PERMISSION = 2
-    private var screenRecordHelper: ScreenRecordHelper? = null
+    private var screenRecordHelper: ScreenRecordHelper = ScreenRecordHelper
     private var circularAnimationDone = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +37,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         val mediaRecorder: MediaRecorder = MediaRecorder()
         val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val screenDensity = displayMetrics.densityDpi
-        screenRecordHelper = ScreenRecordHelper(projectionManager, mediaRecorder, this, screenDensity, this)
+
+        if (!screenRecordHelper.isRecording()) {
+            screenRecordHelper.init(projectionManager, mediaRecorder, this, screenDensity, this)
+        } else{
+            circularAnimationDone = true
+            onRecordingStarted()
+        }
 
         val interpolator: OvershootInterpolator = OvershootInterpolator(2.5f)
 
@@ -50,13 +57,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
                         return@setOnTouchListener true
                     }
 
-                    if (null == screenRecordHelper) return@setOnTouchListener true
-
                     if (circularAnimationDone) {
-                        if (screenRecordHelper?.isRecording()!!) {
-                            screenRecordHelper?.stopRecording()
+                        if (screenRecordHelper.isRecording()) {
+                            screenRecordHelper.stopRecording()
                         } else {
-                            screenRecordHelper?.initRecording()
+                            screenRecordHelper.initRecording()
                         }
                         return@setOnTouchListener true
                     }
@@ -76,9 +81,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
     }
 
     override fun onRecordingStarted() {
-        record_icon.setImageResource(R.drawable.ic_pause)
+        record_icon.setImageResource(R.drawable.ic_stop)
         record_title.text = getString(R.string.stop_record)
-        
+        if (record_description.visibility == View.VISIBLE) {
+            record_description.visibility = View.GONE
+            circular_reveal.visibility = View.VISIBLE
+            record_title.setTextColor(ContextCompat.getColor(this, R.color.white))
+        }
+        circular_reveal.setBackgroundColor(ContextCompat.getColor(this, R.color.red_500))
     }
 
     private fun circularRevealAnimation(event: MotionEvent, interpolator: OvershootInterpolator, recordTitle: Int, recordIcon: Int) {
@@ -188,17 +198,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode != screenRecordHelper?.REQUEST_CODE || resultCode != Activity.RESULT_OK) {
+        if (requestCode != screenRecordHelper.REQUEST_CODE || resultCode != Activity.RESULT_OK) {
             return
         }
 
-        screenRecordHelper?.registerMediaProjection(resultCode, data)
+        screenRecordHelper.registerMediaProjection(resultCode, data)
+        Log.d("Main Activity", "Coming here")
+        startService(intentFor<RecordService>())
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                screenRecordHelper?.initRecording()
+                screenRecordHelper.initRecording()
             }
         }
     }

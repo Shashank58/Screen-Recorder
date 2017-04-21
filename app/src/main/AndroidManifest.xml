@@ -20,7 +20,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".EditVideoActivity" />
-        <activity android:name=".VideosActivity"></activity>
+        <activity android:name=".VideosActivity" />
+
+        <service
+            android:name=".RecordService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
