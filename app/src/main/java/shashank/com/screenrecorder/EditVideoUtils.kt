@@ -15,6 +15,8 @@ import java.io.File
  */
 class EditVideoUtils(context: Context, val response: EditVideoContract.Response) : EditVideoContract {
     var ffmpeg: FFmpeg? = null
+    var isConvertToGif = false
+    var count = 0
 
     init {
         if (ffmpeg == null) {
@@ -44,6 +46,8 @@ class EditVideoUtils(context: Context, val response: EditVideoContract.Response)
     }
 
     override fun convertVideoToGif(file: File) {
+        isConvertToGif = true
+        count = 0
         response.showProgress("Converting", "Working our magic!")
         doAsync {
             try {
@@ -58,7 +62,7 @@ class EditVideoUtils(context: Context, val response: EditVideoContract.Response)
             }
             uiThread {
                 val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".gif")
-                val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/pallet.png")
+                val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/" + System.currentTimeMillis() + "_pallet.png")
                 val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
                 val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
                 execFFmpegCommand(palletCommand)
@@ -125,6 +129,12 @@ class EditVideoUtils(context: Context, val response: EditVideoContract.Response)
 
         override fun onSuccess(message: String?) {
             super.onSuccess(message)
+            if (isConvertToGif && count == 0) {
+                count++
+                return
+            }
+
+            isConvertToGif = false
             response.finishedSuccessFully()
             Log.d("ExecuteHandler", "ffmpeg : SUCCESS!")
         }

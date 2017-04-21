@@ -21,9 +21,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.intentFor
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelper.RecordContract {
     private val REQUEST_PERMISSION = 2
     private var screenRecordHelper: ScreenRecordHelper? = null
+    private var circularAnimationDone = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val mediaRecorder: MediaRecorder = MediaRecorder()
         val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val screenDensity = displayMetrics.densityDpi
-        screenRecordHelper = ScreenRecordHelper(projectionManager, mediaRecorder, this, screenDensity)
+        screenRecordHelper = ScreenRecordHelper(projectionManager, mediaRecorder, this, screenDensity, this)
 
         val interpolator: OvershootInterpolator = OvershootInterpolator(2.5f)
 
@@ -51,159 +52,139 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
                     if (null == screenRecordHelper) return@setOnTouchListener true
 
-                    record_icon.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
-                    record_title.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
-                    record_description.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
-
-                    record_icon.setImageResource(R.drawable.ic_play_arrow)
-                    record_title.text = getText(R.string.start_recording)
-                    record_title.setTextColor(ContextCompat.getColor(this, R.color.white))
-
-                    val cx = event.x.toInt() //Visible layout
-                    val cy = event.y.toInt()
-
-                    val finalRadius = Math.hypot(circular_reveal.width.toDouble(), circular_reveal.height.toDouble()).toInt()
-                    val initialRadius = 0
-
-                    val anim = ViewAnimationUtils.createCircularReveal(circular_reveal, cx, cy, initialRadius.toFloat(),
-                            finalRadius.toFloat())
-
-                    anim.duration = 500
-
-                    anim.addListener(object : Animator.AnimatorListener {
-                        override fun onAnimationStart(animation: Animator) {
-
+                    if (circularAnimationDone) {
+                        if (screenRecordHelper?.isRecording()!!) {
+                            screenRecordHelper?.stopRecording()
+                        } else {
+                            screenRecordHelper?.initRecording()
                         }
+                        return@setOnTouchListener true
+                    }
 
-                        override fun onAnimationEnd(animation: Animator) {
-                            record_icon.animate().scaleY(1f).scaleX(1f).setInterpolator(interpolator).setDuration(300).start()
-                            record_title.animate().scaleY(1f).scaleX(1f).setInterpolator(interpolator).setDuration(300).start()
-                        }
-
-                        override fun onAnimationCancel(animation: Animator) {
-
-                        }
-
-                        override fun onAnimationRepeat(animation: Animator) {
-
-                        }
-                    })
-
-                    circular_reveal.visibility = View.VISIBLE
-                    anim.start()
+                    circularAnimationDone = true
+                    circularRevealAnimation(event, interpolator, R.string.start_recording, R.drawable.ic_play_arrow)
                 }
                 else -> {
                 }
             }
 
-//            if (screenRecordHelper?.isRecording()!!) {
-//                screenRecordHelper?.stopRecording()
-//            } else {
-//                screenRecordHelper?.initRecording()
-//            }
-
             return@setOnTouchListener true
         }
         edit_video.setOnClickListener(this)
         slow_motion.setOnClickListener(this)
+        convert_video_to_gif.setOnClickListener(this)
+    }
+
+    override fun onRecordingStarted() {
+        record_icon.setImageResource(R.drawable.ic_pause)
+        record_title.text = getString(R.string.stop_record)
+        
+    }
+
+    private fun circularRevealAnimation(event: MotionEvent, interpolator: OvershootInterpolator, recordTitle: Int, recordIcon: Int) {
+        record_icon.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
+        record_title.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
+        record_description.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
+
+        record_icon.setImageResource(recordIcon)
+        record_title.text = getText(recordTitle)
+        record_title.setTextColor(ContextCompat.getColor(this, R.color.white))
+
+        val cx = event.x.toInt() //Visible layout
+        val cy = event.y.toInt()
+
+        val finalRadius = Math.hypot(circular_reveal.width.toDouble(), circular_reveal.height.toDouble()).toInt()
+        val initialRadius = 0
+
+        val anim = ViewAnimationUtils.createCircularReveal(circular_reveal, cx, cy, initialRadius.toFloat(),
+                finalRadius.toFloat())
+
+        anim.duration = 500
+
+        anim.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animator) {
+                record_icon.animate().scaleY(1f).scaleX(1f).setInterpolator(interpolator).setDuration(300).start()
+                record_title.animate().scaleY(1f).scaleX(1f).setInterpolator(interpolator).setDuration(300).start()
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+
+            }
+
+            override fun onAnimationRepeat(animation: Animator) {
+
+            }
+        })
+
+        circular_reveal.visibility = View.VISIBLE
+        anim.start()
     }
 
     override fun onClick(v: View?) {
         if (v != null) when (v.id) {
             R.id.edit_video -> {
-                edit_video.animate()
-                        .setListener(object : Animator.AnimatorListener {
-                            override fun onAnimationRepeat(animation: Animator?) {
-
-                            }
-
-                            override fun onAnimationStart(animation: Animator?) {
-
-                            }
-
-                            override fun onAnimationCancel(animation: Animator?) {
-
-                            }
-
-                            override fun onAnimationEnd(animation: Animator?) {
-                                edit_video.animate()
-                                        .setListener(object : Animator.AnimatorListener {
-                                            override fun onAnimationRepeat(animation: Animator?) {
-
-                                            }
-
-                                            override fun onAnimationEnd(animation: Animator?) {
-                                                startActivity(intentFor<VideosActivity>("purpose" to 0))
-                                            }
-
-                                            override fun onAnimationStart(animation: Animator?) {
-
-                                            }
-
-                                            override fun onAnimationCancel(animation: Animator?) {
-
-                                            }
-
-                                        })
-                                        .scaleX(1f)
-                                        .scaleY(1f)
-                                        .setDuration(200)
-                                        .start()
-                            }
-                        })
-                        .scaleX(0.8f)
-                        .scaleY(0.8f)
-                        .setDuration(200)
-                        .start()
+                animateCard(edit_video, 0)
             }
 
             R.id.slow_motion -> {
-                slow_motion.animate()
-                        .setListener(object : Animator.AnimatorListener {
-                            override fun onAnimationRepeat(animation: Animator?) {
+                animateCard(slow_motion, 1)
+            }
 
-                            }
-
-                            override fun onAnimationStart(animation: Animator?) {
-
-                            }
-
-                            override fun onAnimationCancel(animation: Animator?) {
-
-                            }
-
-                            override fun onAnimationEnd(animation: Animator?) {
-                                slow_motion.animate()
-                                        .setListener(object : Animator.AnimatorListener {
-                                            override fun onAnimationRepeat(animation: Animator?) {
-
-                                            }
-
-                                            override fun onAnimationEnd(animation: Animator?) {
-                                                startActivity(intentFor<VideosActivity>("purpose" to 1))
-                                            }
-
-                                            override fun onAnimationStart(animation: Animator?) {
-
-                                            }
-
-                                            override fun onAnimationCancel(animation: Animator?) {
-
-                                            }
-
-                                        })
-                                        .scaleX(1f)
-                                        .scaleY(1f)
-                                        .setDuration(200)
-                                        .start()
-                            }
-                        })
-                        .scaleX(0.8f)
-                        .scaleY(0.8f)
-                        .setDuration(200)
-                        .start()
+            R.id.convert_video_to_gif -> {
+                animateCard(convert_video_to_gif, 2)
             }
         }
+    }
+
+    private fun animateCard(view: View, purpose: Int) {
+        view.animate()
+                .setListener(object : Animator.AnimatorListener {
+                    override fun onAnimationRepeat(animation: Animator?) {
+
+                    }
+
+                    override fun onAnimationStart(animation: Animator?) {
+
+                    }
+
+                    override fun onAnimationCancel(animation: Animator?) {
+
+                    }
+
+                    override fun onAnimationEnd(animation: Animator?) {
+                        view.animate()
+                                .setListener(object : Animator.AnimatorListener {
+                                    override fun onAnimationRepeat(animation: Animator?) {
+
+                                    }
+
+                                    override fun onAnimationEnd(animation: Animator?) {
+                                        startActivity(intentFor<VideosActivity>("purpose" to purpose))
+                                    }
+
+                                    override fun onAnimationStart(animation: Animator?) {
+
+                                    }
+
+                                    override fun onAnimationCancel(animation: Animator?) {
+
+                                    }
+
+                                })
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(100)
+                                .start()
+                    }
+                })
+                .scaleX(0.8f)
+                .scaleY(0.8f)
+                .setDuration(100)
+                .start()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

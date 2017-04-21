@@ -13,8 +13,8 @@ import java.io.IOException
 /**
  * Created by shashankm on 02/03/17.
  */
-class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val mediaRecorder: MediaRecorder, val
-            activity: MainActivity, val screenDensity: Int) {
+class ScreenRecordHelper (val projectionManager: MediaProjectionManager, val mediaRecorder: MediaRecorder, val
+            activity: MainActivity, val screenDensity: Int, val recordContract: RecordContract) {
     val REQUEST_CODE = 1
 
     private val ORIENTATION = SparseIntArray()
@@ -26,12 +26,17 @@ class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val medi
     private var virtualDisplay: VirtualDisplay? = null
     private var isRecording = false
 
+    interface RecordContract {
+        fun onRecordingStarted()
+    }
+
     fun initRecording() {
         try {
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            mediaRecorder.setOutputFile(Environment.getExternalStorageDirectory().path + "/video.mp4")
+            mediaRecorder.setOutputFile(Environment.getExternalStorageDirectory().path + "/"+ System
+                    .currentTimeMillis() +".mp4")
             mediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT)
             mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
@@ -56,6 +61,7 @@ class ScreenRecordHelper(val projectionManager: MediaProjectionManager, val medi
 
         virtualDisplay = createVirtualDisplay()
         mediaRecorder.start()
+        recordContract.onRecordingStarted()
         isRecording = true
     }
 

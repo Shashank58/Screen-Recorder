@@ -82,31 +82,39 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
                             .centerCrop()
                             .into(itemView.video_thumbnail)
                     itemView.video_card.setOnClickListener {
-                        if (purpose == 0) {
-                            startActivity(intentFor<EditVideoActivity>("data" to video.data, "duration" to duration))
-                        } else {
-                            quality_popup.visibility = View.VISIBLE
-                            quality_popup.animate().setInterpolator(interpolator).setListener(null).scaleY(1f).scaleX(1f).start()
-                            blur.visibility = View.VISIBLE
-
-                            blur.setOnClickListener {
-                                hidePopup(null, null)
+                        when(purpose) {
+                            0 -> {
+                                startActivity(intentFor<EditVideoActivity>("data" to video.data, "duration" to duration))
                             }
 
-                            low.setOnClickListener {
-                                hidePopup("8", video.data)
+                            1 -> {
+                                quality_popup.visibility = View.VISIBLE
+                                quality_popup.animate().setInterpolator(interpolator).setListener(null).scaleY(1f).scaleX(1f).start()
+                                blur.visibility = View.VISIBLE
+
+                                blur.setOnClickListener {
+                                    hidePopup(null, null)
+                                }
+
+                                low.setOnClickListener {
+                                    hidePopup("8", data)
+                                }
+
+                                medium.setOnClickListener {
+                                    hidePopup("16", data)
+                                }
+
+                                high.setOnClickListener {
+                                    hidePopup("30", data)
+                                }
+
+                                very_high.setOnClickListener {
+                                    hidePopup("60", data)
+                                }
                             }
 
-                            medium.setOnClickListener {
-                                hidePopup("16", video.data)
-                            }
-
-                            high.setOnClickListener {
-                                hidePopup("30", video.data)
-                            }
-
-                            very_high.setOnClickListener {
-                                hidePopup("60", video.data)
+                            2 -> {
+                                editVideo?.convertVideoToGif(File(Uri.parse(data).path))
                             }
                         }
                     }
