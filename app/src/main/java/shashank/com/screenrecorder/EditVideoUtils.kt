@@ -86,7 +86,7 @@ class EditVideoUtils(context: Context, val response: EditVideoContract.Response)
             }
             uiThread {
                 val slowedVideo: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".mp4")
-                val gitCommand = arrayOf("-i", file.absolutePath, "-r", quality, "-filter:v", "setpts=5.0*PTS", "-preset", "ultrafast", slowedVideo.absolutePath)
+                val gitCommand = arrayOf("-i", file.absolutePath, "-r", quality, "-filter:v", "setpts=3.5*PTS", "-preset", "ultrafast", slowedVideo.absolutePath)
                 execFFmpegCommand(gitCommand)
             }
         }

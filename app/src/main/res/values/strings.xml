@@ -18,7 +18,7 @@
     <string name="convert_your_mp4_or_3gp_video_to_an_animated_gif">Convert your mp4 or 3gp video to an animated gif</string>
     <string name="slide_show">Slide show</string>
     <string name="create_a_video_slide_show_from_a_bunch_of_existing_images">Create a video slide show from a bunch of existing images</string>
-    <string name="pause_or_stop_recording_through_the_given_controls">Stop recording through the given control</string>
+    <string name="pause_or_stop_recording_through_the_given_controls">Your screen is recording. Please press stop to stop recording and save video</string>
     <string name="pause">Pause</string>
     <string name="stop">STOP</string>
 </resources>
