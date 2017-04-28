@@ -34,13 +34,11 @@ public class RecordService extends Service {
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         RemoteViews expandedView = new RemoteViews(getPackageName(), R.layout.notification_expanded);
-        PendingIntent playPauseIntent = PendingIntent.getBroadcast(this, 0, new Intent(NotificationCallbacks.PLAY_PAUSE), 0);
         PendingIntent stopIntent = PendingIntent.getBroadcast(this, 0, new Intent(NotificationCallbacks.STOP), 0);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this,
                         MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        expandedView.setOnClickPendingIntent(R.id.pause_play, playPauseIntent);
         expandedView.setOnClickPendingIntent(R.id.stop, stopIntent);
 
         Notification.Builder notificationBuilder =
@@ -49,7 +47,7 @@ public class RecordService extends Service {
         notification = notificationBuilder.build();
         notification.contentIntent = pendingIntent;
         notification.bigContentView = expandedView;
-        notification.icon = R.mipmap.ic_launcher;
+        notification.icon = R.drawable.ic_stat_videocam;
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(NotificationCallbacks.PLAY_PAUSE);
