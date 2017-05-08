@@ -20,5 +20,5 @@
     <string name="create_a_video_slide_show_from_a_bunch_of_existing_images">Create a video slide show from a bunch of existing images</string>
     <string name="pause_or_stop_recording_through_the_given_controls">Your screen is recording. Please press stop to stop recording and save video</string>
     <string name="pause">Pause</string>
-    <string name="stop">STOP</string>
+    <string name="stop">Stop</string>
 </resources>

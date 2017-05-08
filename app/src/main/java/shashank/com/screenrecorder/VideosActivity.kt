@@ -1,9 +1,13 @@
 package shashank.com.screenrecorder
 
+import android.Manifest
 import android.animation.Animator
 import android.app.ProgressDialog
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -19,6 +23,8 @@ import java.io.File
 import java.util.*
 
 class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
+    private val REQUEST_PERMISSION = 1
+
     private var adapter: VideoAdapter? = null
     private var editVideo: EditVideoContract? = null
     private var purpose: Int = 0
@@ -29,6 +35,18 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
         setContentView(R.layout.activity_videos)
 
         video_list.layoutManager = GridLayoutManager(this, 3) as RecyclerView.LayoutManager?
+
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest
+                    .permission.RECORD_AUDIO), REQUEST_PERMISSION)
+            return
+        }
+
+        setUpAdapter()
+    }
+
+    private fun setUpAdapter() {
         adapter = VideoAdapter(VideoHelper().getVideos(this))
         editVideo = EditVideoUtils(this, this)
 
@@ -46,6 +64,14 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
     override fun onFailure(message: String) {
         if (progressDialog != null) {
             progressDialog!!.dismiss()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == REQUEST_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setUpAdapter()
+            }
         }
     }
 

@@ -13,7 +13,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
@@ -50,8 +49,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         record_screen.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                            PackageManager.PERMISSION_GRANTED) {
+                    if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                            PackageManager.PERMISSION_GRANTED) || (ContextCompat.checkSelfPermission(this, Manifest.permission
+                            .RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)) {
                         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest
                                 .permission.RECORD_AUDIO), REQUEST_PERMISSION)
                         return@setOnTouchListener true
@@ -203,13 +203,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         }
 
         screenRecordHelper.registerMediaProjection(resultCode, data)
-        Log.d("Main Activity", "Coming here")
         startService(intentFor<RecordService>())
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_PERMISSION) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]
+                    == PackageManager.PERMISSION_GRANTED) {
                 screenRecordHelper.initRecording()
             }
         }

@@ -59,7 +59,7 @@
             android:layout_gravity="center"
             android:src="@drawable/ic_stop"
             android:tint="@color/red_500"
-            android:layout_marginStart="-16dp"
+            android:layout_marginStart="-20dp"
             />
 
         <TextView
@@ -69,8 +69,8 @@
             android:layout_gravity="center_vertical"
             android:text="@string/stop"
             android:textColor="@color/white"
-            android:textSize="16sp"
-            android:layout_marginStart="8dp"
+            android:textSize="18sp"
+            android:layout_marginStart="4dp"
             android:textStyle="bold"
             />
 
