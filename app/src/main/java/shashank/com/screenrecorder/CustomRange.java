@@ -64,7 +64,7 @@ public class CustomRange extends View implements View.OnTouchListener {
 
     private RangeChangeListener rangeChangeListener;
 
-    public interface RangeChangeListener {
+    interface RangeChangeListener {
         void onRangeChanged(float startValue, float endValue);
     }
 

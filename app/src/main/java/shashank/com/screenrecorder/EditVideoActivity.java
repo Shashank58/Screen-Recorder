@@ -1,15 +1,17 @@
 package shashank.com.screenrecorder;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import java.io.File;
@@ -29,6 +31,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
     private SeekBar seekBar;
     private CustomRange rangePicker;
     private ImageView playPause;
+    private TextView startTime, endTime, videoCurrentTime;
     private final Handler hideHandler = new Handler();
     private String data;
     private ProgressDialog progressDialog;
@@ -43,17 +46,38 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
         seekBar = (SeekBar) findViewById(R.id.seek_bar);
         rangePicker = (CustomRange) findViewById(R.id.video_range_picker);
         playPause = (ImageView) findViewById(R.id.play_pause);
+        startTime = (TextView) findViewById(R.id.start_time);
+        endTime = (TextView) findViewById(R.id.end_time);
+        videoCurrentTime = (TextView) findViewById(R.id.video_current_time);
         View videoContainer = findViewById(R.id.video_container);
         View trimVideo = findViewById(R.id.trim_video);
 
         int duration = (int) getIntent().getLongExtra("duration", 0);
+
+        int maxFileDuration = 1000 * 60 * 5; // 5 minutes
+        if (duration > maxFileDuration) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle("Error!")
+                    .setMessage("The file size is too large. It's gonna take forever to trim. Have mercy and pick a smaller file")
+                    .setPositiveButton("Cool", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+            builder.show();
+            return;
+        }
+
         video.setVideoURI(Uri.parse(data));
         video.start();
         seekBar.setMax(duration);
         rangePicker.setMinValue(0);
         rangePicker.setMaxValue(duration);
         rangePicker.setRangeChangeListener(this);
-        Log.d(TAG, "onCreate: max - " + rangePicker.getMaxValue());
+
+        startTime.setText(getMinsAndSecs(0f));
+        endTime.setText(getMinsAndSecs(duration));
 
         seekUpdation();
         hidePlayPause();
@@ -64,6 +88,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
                 if (fromUser) {
                     video.seekTo(progress);
                     seekBar.setProgress(progress);
+                    videoCurrentTime.setText(getMinsAndSecs(progress));
                 }
             }
 
@@ -93,9 +118,12 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
 
     @Override
     public void onRangeChanged(float startValue, float endValue) {
-        seekBar.setProgress((int) startValue);
-        video.seekTo((int) startValue);
+        int startInt = (int) startValue;
+        seekBar.setProgress(startInt);
+        video.seekTo(startInt);
         video.pause();
+        startTime.setText(getMinsAndSecs(startValue));
+        endTime.setText(getMinsAndSecs(endValue));
     }
 
     private Runnable runnable = new Runnable() {
@@ -107,10 +135,17 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
 
     private void seekUpdation() {
         seekBar.setProgress(video.getCurrentPosition());
+        videoCurrentTime.setText(getMinsAndSecs(video.getCurrentPosition()));
         handler.postDelayed(runnable, 1000);
     }
 
-    private String getDate(float value) {
+    private String getMinsAndSecs(float value) {
+        int secs = (int) (value / 1000);
+        int mins = secs / 60;
+        return String.format(Locale.getDefault(), "%02d", mins) + ":" + String.format(Locale.getDefault(), "%02d", secs % 60);
+    }
+
+    private String getTime(float value) {
         int secs = (int) (value / 1000);
         int mins = secs / 60;
         int hours = mins / 60;
@@ -136,8 +171,8 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
             case R.id.trim_video:
                 EditVideoUtils editVideoUtils = new EditVideoUtils(this, this);
 
-                String startTime = getDate(rangePicker.getStartValue());
-                String endTime = getDate(rangePicker.getEndValue());
+                String startTime = getTime(rangePicker.getStartValue());
+                String endTime = getTime(rangePicker.getEndValue());
                 editVideoUtils.trimFile(new File(Uri.parse(data).getPath()), startTime, endTime);
                 break;
         }

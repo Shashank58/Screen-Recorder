@@ -2,6 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -76,13 +77,54 @@
         android:layout_gravity="bottom"
         />
 
-    <shashank.com.screenrecorder.CustomRange
-        android:id="@+id/video_range_picker"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_margin="36dp"
-        app:selectedColor="@color/colorPrimary"
-        app:nonSelectedColor="@color/grey_300"
+    <TextView
+        android:id="@+id/video_current_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        tools:text="0:04"
         />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        >
+
+        <TextView
+            android:id="@+id/start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="0:00"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            android:textColor="@color/white"
+            />
+
+        <shashank.com.screenrecorder.CustomRange
+            android:id="@+id/video_range_picker"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            app:selectedColor="@color/colorPrimary"
+            app:nonSelectedColor="@color/grey_300"
+            />
+
+        <TextView
+            android:id="@+id/end_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            tools:text="0:09"
+            android:textColor="@color/white"
+            />
+
+    </LinearLayout>
 
 </LinearLayout>
