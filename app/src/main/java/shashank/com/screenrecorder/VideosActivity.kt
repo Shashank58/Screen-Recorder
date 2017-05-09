@@ -17,24 +17,31 @@ import android.view.ViewGroup
 import android.view.animation.AnticipateOvershootInterpolator
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_videos.*
+import kotlinx.android.synthetic.main.song_card.view.*
 import kotlinx.android.synthetic.main.video_card.view.*
 import org.jetbrains.anko.intentFor
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 
-class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
+class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnClickListener {
     private val REQUEST_PERMISSION = 1
 
-    private var adapter: VideoAdapter? = null
+    private var videoAdapter: VideoAdapter? = null
+    private var songAdapter: SongAdapter? = null
     private var editVideo: EditVideoContract? = null
     private var purpose: Int = 0
     private var progressDialog: ProgressDialog? = null
+    private var isVideo = true
+    private var videoList: MutableList<Video> = ArrayList()
+    private var songsList: MutableList<Song> = ArrayList()
+    private val layoutManager: GridLayoutManager = GridLayoutManager(this, 3)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_videos)
 
-        video_list.layoutManager = GridLayoutManager(this, 3) as RecyclerView.LayoutManager?
+        video_list.layoutManager = layoutManager as RecyclerView.LayoutManager?
 
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED)) {
@@ -47,17 +54,46 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
     }
 
     private fun setUpAdapter() {
-        adapter = VideoAdapter(VideoHelper().getVideos(this))
+        videoList = MediaHelper().getVideos(this)
+
+        videoAdapter = VideoAdapter()
+        songAdapter = SongAdapter()
         editVideo = EditVideoUtils(this, this)
 
         purpose = intent.getIntExtra("purpose", 0)
 
-        video_list.adapter = adapter
+        if (purpose == 0) {
+            media_select.visibility = View.VISIBLE
+            media_select.setOnClickListener(this)
+            songsList = MediaHelper().getSongs(this)
+        }
+
+        video_list.adapter = videoAdapter
     }
 
     override fun finishedSuccessFully() {
         if (progressDialog != null) {
             progressDialog!!.dismiss()
+        }
+    }
+
+    override fun onClick(v: View?) {
+        if (v!!.id == R.id.media_select) {
+            if (isVideo) {
+                isVideo = false
+                Glide.with(this)
+                        .load(R.drawable.ic_video)
+                        .into(media_select)
+                layoutManager.spanCount = 2
+                video_list.adapter = songAdapter
+            } else {
+                isVideo = true
+                Glide.with(this)
+                        .load(R.drawable.ic_music)
+                        .into(media_select)
+                layoutManager.spanCount = 3
+                video_list.adapter = videoAdapter
+            }
         }
     }
 
@@ -80,7 +116,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
         progressDialog?.show()
     }
 
-    inner class VideoAdapter(val videoList: MutableList<Video>) : RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
+    inner class VideoAdapter : RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             return ViewHolder(LayoutInflater.from(parent?.context).inflate(R.layout.video_card, parent, false))
@@ -175,5 +211,27 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response {
 
             }
         }
+    }
+
+    inner class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
+        override fun getItemCount(): Int = songsList.size
+
+        override fun onBindViewHolder(holder: SongAdapter.SongViewHolder, position: Int) {
+            holder.bind(songsList[position])
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SongViewHolder = SongViewHolder(LayoutInflater
+                .from(parent?.context).inflate(R.layout.song_card, parent, false))
+
+        inner class SongViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+
+            fun bind(song: Song) {
+                with(song) {
+                    itemView.song_name.text = trackName
+                    itemView.artist_name.text = artist
+                }
+            }
+        }
+
     }
 }
