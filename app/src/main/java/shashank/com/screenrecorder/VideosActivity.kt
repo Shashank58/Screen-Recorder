@@ -24,6 +24,8 @@ import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
+
+
 class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnClickListener {
     private val REQUEST_PERMISSION = 1
 
@@ -217,18 +219,29 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
         override fun getItemCount(): Int = songsList.size
 
         override fun onBindViewHolder(holder: SongAdapter.SongViewHolder, position: Int) {
-            holder.bind(songsList[position])
+            holder.bind(songsList[position], position)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SongViewHolder = SongViewHolder(LayoutInflater
                 .from(parent?.context).inflate(R.layout.song_card, parent, false))
 
         inner class SongViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+            val colors: Array<Int> = arrayOf(R.color.red_a_100, R.color.pink_a_100, R.color.indigo_a_100, R.color.teal_a_100,
+                    R.color.amber_a_100, R.color.orange_a_100, R.color.light_blue_a_100)
 
-            fun bind(song: Song) {
+            fun bind(song: Song, position: Int) {
                 with(song) {
                     itemView.song_name.text = trackName
                     itemView.artist_name.text = artist
+
+                    if (rawArt == null) {
+                        itemView.song_cover.setBackgroundColor(ContextCompat.getColor(this@VideosActivity, colors[position % 6]))
+                    } else {
+                        itemView.song_cover.setBackgroundColor(0)
+                        Glide.with(this@VideosActivity)
+                                .load(rawArt)
+                                .into(itemView.song_cover)
+                    }
                 }
             }
         }

@@ -12,4 +12,12 @@
     <color name="purple_200">#B39DDB</color>
     <color name="purple_400">#7E57C2</color>
     <color name="purple_600">#5E35B1</color>
+
+    <color name="red_a_100">#FF8A80</color>
+    <color name="pink_a_100">#FF80AB</color>
+    <color name="indigo_a_100">#8C9EFF</color>
+    <color name="teal_a_100">#A7FFEB</color>
+    <color name="amber_a_100">#FFE57F</color>
+    <color name="orange_a_100">#FF9E80</color>
+    <color name="light_blue_a_100">#80D8FF</color>
 </resources>

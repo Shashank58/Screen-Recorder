@@ -31,6 +31,7 @@
             tools:text="The music of some shit"
             android:maxLines="1"
             android:ellipsize="end"
+            android:layout_marginTop="12dp"
             />
 
         <TextView
@@ -38,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="4dp"
             android:textSize="12sp"
             tools:text="Linking park"
             android:maxLines="1"

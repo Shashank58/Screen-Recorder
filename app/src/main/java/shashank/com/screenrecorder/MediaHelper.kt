@@ -42,14 +42,16 @@ class MediaHelper {
         val columns = arrayOf(track_id, track_no, artist, track_name, album, duration, path)
         val cursor = context.contentResolver.query(uri, columns, null, null, null)
         while (cursor.moveToNext()) {
-            val trackId = cursor.getInt(0)
+            val trackId = cursor.getLong(0)
             val trackNo = cursor.getInt(1)
             val artist = cursor.getString(2)
             val trackName = cursor.getString(3)
             val album = cursor.getString(4)
             val duration = cursor.getLong(5)
             val path = cursor.getString(6)
-            songsList.add(Song(trackId, trackNo, artist, trackName, album, duration, path))
+            val song: Song = Song(trackId, trackNo, artist, trackName, album, duration, path)
+            song.setRawArt(context)
+            songsList.add(song)
         }
         cursor.close()
         return songsList
