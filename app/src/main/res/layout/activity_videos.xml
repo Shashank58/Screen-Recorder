@@ -20,6 +20,7 @@
             android:src="@drawable/ic_action_left" />
 
         <TextView
+            android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -33,13 +34,12 @@
             android:layout_width="36dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"
+            android:layout_marginEnd="12dp"
+            android:gravity="center"
+            android:padding="6dp"
             android:src="@drawable/ic_music"
             android:tint="@color/white"
-            android:padding="6dp"
-            android:gravity="center"
-            android:layout_marginEnd="12dp"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
 
     </FrameLayout>
 
@@ -60,7 +60,148 @@
         android:layout_height="match_parent"
         android:alpha="0.4"
         android:background="#000000"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:clickable="true"
+        />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/song_trim_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        app:cardBackgroundColor="#607D8B"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="8dp"
+        android:scaleX="0"
+        android:scaleY="0"
+        android:visibility="gone"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/close_song_trim"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end"
+                android:layout_margin="4dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_clear" />
+
+            <TextView
+                android:id="@+id/trim_song_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/white"
+                tools:text="Round and a round" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/toggle_music"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_play_arrow" />
+
+                <SeekBar
+                    android:id="@+id/song_seek_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_vertical"
+                    android:thumbOffset="8dp"
+                    />
+
+                <TextView
+                    android:id="@+id/song_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="12dp"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    tools:text="00:21" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                >
+
+                <TextView
+                    android:id="@+id/trim_start_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginEnd="8dp"
+                    tools:text="00:00"
+                    />
+
+                <shashank.com.screenrecorder.CustomRange
+                    android:id="@+id/song_trim_range"
+                    android:layout_width="0dp"
+                    android:layout_height="35dp"
+                    android:layout_weight="1"
+                    app:nonSelectedColor="@color/grey_300"
+                    app:selectedColor="@color/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/trim_end_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginStart="8dp"
+                    tools:text="02:10"
+                    />
+
+            </LinearLayout>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/trim"
+                android:layout_width="100dp"
+                android:layout_height="35dp"
+                android:layout_gravity="end"
+                android:layout_margin="20dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/trim"
+                    android:textColor="#212121"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
 
     <android.support.v7.widget.CardView
         android:id="@+id/quality_popup"
