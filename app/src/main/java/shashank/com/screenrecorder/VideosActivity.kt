@@ -78,6 +78,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
             songsList = mediaHelper.getSongs(this)
         }
 
+        back.setOnClickListener { onBackPressed() }
         video_list.adapter = videoAdapter
     }
 

@@ -47,9 +47,11 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
         playPause = (ImageView) findViewById(R.id.play_pause);
         startTime = (TextView) findViewById(R.id.start_time);
         endTime = (TextView) findViewById(R.id.end_time);
+
         videoCurrentTime = (TextView) findViewById(R.id.video_current_time);
         View videoContainer = findViewById(R.id.video_container);
         View trimVideo = findViewById(R.id.trim_video);
+        View back = findViewById(R.id.back);
 
         int duration = (int) getIntent().getLongExtra("duration", 0);
 
@@ -104,6 +106,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
 
         videoContainer.setOnClickListener(this);
         trimVideo.setOnClickListener(this);
+        back.setOnClickListener(this);
     }
 
     private void hidePlayPause() {
@@ -159,6 +162,10 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
                 String startTime = AppUtil.INSTANCE.getTime(rangePicker.getStartValue());
                 String endTime = AppUtil.INSTANCE.getTime(rangePicker.getEndValue());
                 ffmpegUtil.trimVideo(new File(Uri.parse(data).getPath()), startTime, endTime);
+                break;
+
+            case R.id.back:
+                onBackPressed();
                 break;
         }
     }

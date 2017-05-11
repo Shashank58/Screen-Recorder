@@ -12,6 +12,7 @@
         android:layout_height="56dp">
 
         <ImageView
+            android:id="@+id/back"
             android:layout_width="36dp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
