@@ -2,19 +2,23 @@ package shashank.com.screenrecorder
 
 import android.Manifest
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnticipateOvershootInterpolator
+import android.widget.SeekBar
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_videos.*
 import kotlinx.android.synthetic.main.song_card.view.*
@@ -31,13 +35,17 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
 
     private var videoAdapter: VideoAdapter? = null
     private var songAdapter: SongAdapter? = null
-    private var editVideo: EditVideoContract? = null
+    private var editFile: EditVideoContract? = null
     private var purpose: Int = 0
     private var progressDialog: ProgressDialog? = null
     private var isVideo = true
     private var videoList: MutableList<Video> = ArrayList()
     private var songsList: MutableList<Song> = ArrayList()
     private val layoutManager: GridLayoutManager = GridLayoutManager(this, 3)
+
+    private val interpolator: AnticipateOvershootInterpolator = AnticipateOvershootInterpolator()
+    private val mediaHelper: MediaHelper = MediaHelper()
+    private val handler: Handler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,18 +64,18 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
     }
 
     private fun setUpAdapter() {
-        videoList = MediaHelper().getVideos(this)
+        videoList = mediaHelper.getVideos(this)
 
         videoAdapter = VideoAdapter()
         songAdapter = SongAdapter()
-        editVideo = EditVideoUtils(this, this)
+        editFile = FfmpegUtil(this, this)
 
         purpose = intent.getIntExtra("purpose", 0)
 
         if (purpose == 0) {
             media_select.visibility = View.VISIBLE
             media_select.setOnClickListener(this)
-            songsList = MediaHelper().getSongs(this)
+            songsList = mediaHelper.getSongs(this)
         }
 
         video_list.adapter = videoAdapter
@@ -79,21 +87,32 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
         }
     }
 
+    override fun onBackPressed() {
+        if (mediaHelper.isMediaPlayerPlaying()) {
+            closeSongTrimPopup()
+            return
+        }
+        super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        mediaHelper.release()
+        super.onDestroy()
+    }
+
     override fun onClick(v: View?) {
         if (v!!.id == R.id.media_select) {
             if (isVideo) {
                 isVideo = false
-                Glide.with(this)
-                        .load(R.drawable.ic_video)
-                        .into(media_select)
+                media_select.setImageResource(R.drawable.ic_video)
                 layoutManager.spanCount = 2
+                toolbar_title.text = getString(R.string.songs)
                 video_list.adapter = songAdapter
             } else {
                 isVideo = true
-                Glide.with(this)
-                        .load(R.drawable.ic_music)
-                        .into(media_select)
+                media_select.setImageResource(R.drawable.ic_music)
                 layoutManager.spanCount = 3
+                toolbar_title.text = getString(R.string.videos)
                 video_list.adapter = videoAdapter
             }
         }
@@ -131,7 +150,6 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
         override fun getItemCount(): Int = videoList.size
 
         inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-            val interpolator: AnticipateOvershootInterpolator = AnticipateOvershootInterpolator()
 
             fun bind(video: Video) {
                 with(video) {
@@ -178,7 +196,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                             }
 
                             2 -> {
-                                editVideo?.convertVideoToGif(File(Uri.parse(data).path))
+                                editFile?.convertVideoToGif(File(Uri.parse(data).path))
                             }
                         }
                     }
@@ -187,32 +205,39 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
 
             private fun hidePopup(quality: String?, data: String?) {
                 quality_popup.animate()
-                        .setListener(object: Animator.AnimatorListener {
-                            override fun onAnimationRepeat(animation: Animator?) {
-
-                            }
-
+                        .setListener(object: AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator?) {
                                 quality_popup.visibility = View.GONE
                                 blur.visibility = View.GONE
                                 if (quality != null && data != null) {
-                                    editVideo?.slowDownVideo(File(Uri.parse(data).path), quality)
+                                    editFile?.slowDownVideo(File(Uri.parse(data).path), quality)
                                 }
                             }
-
-                            override fun onAnimationCancel(animation: Animator?) {
-
-                            }
-
-                            override fun onAnimationStart(animation: Animator?) {
-
-                            }
-
-                        }).setInterpolator(interpolator)
-                        .scaleY(0f).scaleX(0f).start()
-
+                        }).setInterpolator(interpolator).scaleY(0f).scaleX(0f).start()
             }
         }
+    }
+
+    fun closeSongTrimPopup() {
+        mediaHelper.stopMediaPlayer()
+        handler.removeCallbacks(runnable)
+        song_trim_card.animate().setInterpolator(interpolator)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        song_trim_card.visibility = View.GONE
+                        blur.visibility = View.GONE
+                    }
+                }).scaleY(0f).scaleX(0f).start()
+    }
+
+    private var runnable = Runnable {
+        seekUpdation()
+    }
+
+    private fun seekUpdation() {
+        song_seek_bar.progress = mediaHelper.getCurrentPosition()
+        song_time.text = AppUtil.getMinsAndSecs(mediaHelper.getCurrentPosition().toFloat())
+        handler.postDelayed(runnable, 1000)
     }
 
     inner class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
@@ -225,7 +250,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SongViewHolder = SongViewHolder(LayoutInflater
                 .from(parent?.context).inflate(R.layout.song_card, parent, false))
 
-        inner class SongViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+        inner class SongViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView), CustomRange.RangeChangeListener {
             val colors: Array<Int> = arrayOf(R.color.red_a_100, R.color.pink_a_100, R.color.indigo_a_100, R.color.teal_a_100,
                     R.color.amber_a_100, R.color.orange_a_100, R.color.light_blue_a_100)
 
@@ -242,7 +267,78 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                                 .load(rawArt)
                                 .into(itemView.song_cover)
                     }
+                    itemView.song_card.setOnClickListener {
+                        blur.visibility = View.VISIBLE
+                        showSongTrimCard()
+                    }
                 }
+            }
+
+            private fun Song.showSongTrimCard() {
+                song_trim_card.visibility = View.VISIBLE
+                song_trim_card.animate().setInterpolator(interpolator).setListener(null).scaleY(1f).scaleX(1f).start()
+                trim_song_name.text = trackName
+                song_seek_bar.max = duration.toInt()
+                song_trim_range.minValue = 0f
+                song_trim_range.maxValue = duration.toFloat()
+                song_trim_range.setRangeChangeListener(this@SongViewHolder)
+                trim_start_time.text = AppUtil.getMinsAndSecs(0f)
+                trim_end_time.text = AppUtil.getMinsAndSecs(duration.toFloat())
+                toggle_music.setImageResource(R.drawable.ic_play_arrow)
+                song_seek_bar.progress = 0
+                song_time.text = getString(R.string.zero)
+
+                mediaHelper.initializeSong(path)
+                toggle_music.setOnClickListener {
+                    val isPlaying = mediaHelper.isMediaPlayerPlaying()
+                    val mediaIcon = if (isPlaying) R.drawable.ic_play_arrow else R.drawable.ic_pause
+
+                    if (isPlaying) {
+                        handler.removeCallbacks(runnable)
+                    } else {
+                        seekUpdation()
+                    }
+
+                    toggle_music.setImageResource(mediaIcon)
+                    mediaHelper.toggleMediaPlayback()
+                }
+
+                close_song_trim.setOnClickListener {
+                    closeSongTrimPopup()
+                }
+
+                song_seek_bar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        if (fromUser) {
+                            mediaHelper.seekTo(progress)
+                            seekBar?.progress = progress
+                            song_time.text = AppUtil.getMinsAndSecs(progress.toFloat())
+                        }
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                    }
+
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                    }
+
+                })
+
+                trim.setOnClickListener {
+                    closeSongTrimPopup()
+                    val start: String = AppUtil.getTime(song_trim_range.startValue)
+                    val difference: String = AppUtil.getTime(song_trim_range.endValue - song_trim_range.startValue)
+                    Log.d("Video Activity", "Start - $start; Difference - $difference")
+                    Log.d("Video Activity", "Path - " + (Uri.parse(path).path))
+                    editFile?.trimSong(File(Uri.parse(path).path), start, difference)
+                }
+            }
+
+            override fun onRangeChanged(startValue: Float, endValue: Float) {
+                trim_start_time.text = AppUtil.getMinsAndSecs(startValue)
+                trim_end_time.text = AppUtil.getMinsAndSecs(endValue)
             }
         }
 

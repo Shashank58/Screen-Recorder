@@ -2,9 +2,11 @@ package shashank.com.screenrecorder
 
 import android.content.Context
 import android.database.Cursor
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.MediaStore
-
+import java.io.IOException
 
 
 /**
@@ -19,6 +21,13 @@ class MediaHelper {
     val album = MediaStore.Audio.Media.ALBUM
     val path = MediaStore.Audio.Media.DATA
     var uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    val mediaPlayer = MediaPlayer()
+
+    private var isMediaPlayerReleased = true
+
+    init {
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+    }
 
     fun getVideos(context: Context): MutableList<Video> {
         val uri: Uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
@@ -56,4 +65,38 @@ class MediaHelper {
         cursor.close()
         return songsList
     }
+
+    fun initializeSong(path: String) {
+        isMediaPlayerReleased = false
+        try {
+            mediaPlayer.setDataSource(path)
+            mediaPlayer.prepare()
+        } catch (e: IOException) {
+
+        }
+    }
+
+    fun isMediaPlayerPlaying(): Boolean = !isMediaPlayerReleased && mediaPlayer.isPlaying
+
+    fun toggleMediaPlayback() {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        } else {
+            mediaPlayer.start()
+        }
+    }
+
+    fun stopMediaPlayer() {
+        mediaPlayer.stop()
+        mediaPlayer.reset()
+        isMediaPlayerReleased = true
+    }
+
+    fun getCurrentPosition(): Int = mediaPlayer.currentPosition
+
+    fun seekTo(progress: Int) {
+        mediaPlayer.seekTo(progress)
+    }
+
+    fun release() = mediaPlayer.release()
 }

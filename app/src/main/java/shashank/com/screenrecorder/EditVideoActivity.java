@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import java.io.File;
-import java.util.Locale;
 
 
 /**
@@ -76,8 +75,8 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
         rangePicker.setMaxValue(duration);
         rangePicker.setRangeChangeListener(this);
 
-        startTime.setText(getMinsAndSecs(0f));
-        endTime.setText(getMinsAndSecs(duration));
+        startTime.setText(AppUtil.INSTANCE.getMinsAndSecs(0f));
+        endTime.setText(AppUtil.INSTANCE.getMinsAndSecs(duration));
 
         seekUpdation();
         hidePlayPause();
@@ -88,7 +87,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
                 if (fromUser) {
                     video.seekTo(progress);
                     seekBar.setProgress(progress);
-                    videoCurrentTime.setText(getMinsAndSecs(progress));
+                    videoCurrentTime.setText(AppUtil.INSTANCE.getMinsAndSecs(progress));
                 }
             }
 
@@ -122,8 +121,8 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
         seekBar.setProgress(startInt);
         video.seekTo(startInt);
         video.pause();
-        startTime.setText(getMinsAndSecs(startValue));
-        endTime.setText(getMinsAndSecs(endValue));
+        startTime.setText(AppUtil.INSTANCE.getMinsAndSecs(startValue));
+        endTime.setText(AppUtil.INSTANCE.getMinsAndSecs(endValue));
     }
 
     private Runnable runnable = new Runnable() {
@@ -135,22 +134,8 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
 
     private void seekUpdation() {
         seekBar.setProgress(video.getCurrentPosition());
-        videoCurrentTime.setText(getMinsAndSecs(video.getCurrentPosition()));
+        videoCurrentTime.setText(AppUtil.INSTANCE.getMinsAndSecs(video.getCurrentPosition()));
         handler.postDelayed(runnable, 1000);
-    }
-
-    private String getMinsAndSecs(float value) {
-        int secs = (int) (value / 1000);
-        int mins = secs / 60;
-        return String.format(Locale.getDefault(), "%02d", mins) + ":" + String.format(Locale.getDefault(), "%02d", secs % 60);
-    }
-
-    private String getTime(float value) {
-        int secs = (int) (value / 1000);
-        int mins = secs / 60;
-        int hours = mins / 60;
-        return String.format(Locale.getDefault(), "%02d", hours) + ":" + String.format(Locale.getDefault(),
-                "%02d", mins) + ":" + String.format(Locale.getDefault(), "%02d", secs % 60);
     }
 
     @Override
@@ -169,11 +154,11 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
                 break;
 
             case R.id.trim_video:
-                EditVideoUtils editVideoUtils = new EditVideoUtils(this, this);
+                FfmpegUtil ffmpegUtil = new FfmpegUtil(this, this);
 
-                String startTime = getTime(rangePicker.getStartValue());
-                String endTime = getTime(rangePicker.getEndValue());
-                editVideoUtils.trimFile(new File(Uri.parse(data).getPath()), startTime, endTime);
+                String startTime = AppUtil.INSTANCE.getTime(rangePicker.getStartValue());
+                String endTime = AppUtil.INSTANCE.getTime(rangePicker.getEndValue());
+                ffmpegUtil.trimVideo(new File(Uri.parse(data).getPath()), startTime, endTime);
                 break;
         }
     }

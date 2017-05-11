@@ -13,7 +13,7 @@ import java.io.File
 /**
  * Created by shashankm on 09/03/17.
  */
-class EditVideoUtils(context: Context, val response: EditVideoContract.Response) : EditVideoContract {
+class FfmpegUtil(context: Context, val response: EditVideoContract.Response) : EditVideoContract {
     var ffmpeg: FFmpeg? = null
     var isConvertToGif = false
     var count = 0
@@ -24,7 +24,7 @@ class EditVideoUtils(context: Context, val response: EditVideoContract.Response)
         }
     }
 
-    override fun trimFile(file: File, start: String, end: String) {
+    override fun trimVideo(file: File, start: String, end: String) {
         response.showProgress("Trimming", "Yup working on it!")
         doAsync {
             try {
@@ -64,9 +64,9 @@ class EditVideoUtils(context: Context, val response: EditVideoContract.Response)
                 val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".gif")
                 val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/" + System.currentTimeMillis() + "_pallet.png")
                 val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
-                val gitCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
+                val gifCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
                 execFFmpegCommand(palletCommand)
-                execFFmpegCommand(gitCommand)
+                execFFmpegCommand(gifCommand)
             }
         }
     }
@@ -86,8 +86,30 @@ class EditVideoUtils(context: Context, val response: EditVideoContract.Response)
             }
             uiThread {
                 val slowedVideo: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".mp4")
-                val gitCommand = arrayOf("-i", file.absolutePath, "-r", quality, "-filter:v", "setpts=3.5*PTS", "-preset", "ultrafast", slowedVideo.absolutePath)
-                execFFmpegCommand(gitCommand)
+                val command = arrayOf("-i", file.absolutePath, "-r", quality, "-filter:v", "setpts=3.5*PTS", "-preset", "ultrafast", slowedVideo.absolutePath)
+                execFFmpegCommand(command)
+            }
+        }
+    }
+
+    override fun trimSong(file: File, start: String, difference: String) {
+        response.showProgress("Converting", "Trimming down to your needs!")
+        doAsync {
+            try {
+                val loadResponse: Load = Load()
+                ffmpeg?.loadBinary(loadResponse)
+            } catch (e: FFmpegNotSupportedException) {
+                e.printStackTrace()
+                Log.d("FFMPEG", "ffmpeg : Not supported")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.d("FFMPEG", "ffmpeg : Exception")
+            }
+            uiThread {
+                Log.d("Ffmpeg", "output " + file.absolutePath)
+                val trimSong: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".mp3")
+                val command = arrayOf("-ss", start, "-t", difference, "-i", file.absolutePath, trimSong.absolutePath)
+                execFFmpegCommand(command)
             }
         }
     }
