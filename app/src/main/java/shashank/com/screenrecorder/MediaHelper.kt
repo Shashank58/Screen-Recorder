@@ -40,7 +40,7 @@ class MediaHelper {
             val added = cursor.getLong(1)
             val name: String? = cursor.getString(2)
             val duration = cursor.getLong(3)
-            videoList.add(Video(data, added, name, duration))
+            videoList.add(0, Video(data, added, name, duration))
         }
         cursor.close()
         return videoList
@@ -60,7 +60,7 @@ class MediaHelper {
             val path = cursor.getString(6)
             val song: Song = Song(trackId, trackNo, artist, trackName, album, duration, path)
             song.setRawArt(context)
-            songsList.add(song)
+            songsList.add(0, song)
         }
         cursor.close()
         return songsList

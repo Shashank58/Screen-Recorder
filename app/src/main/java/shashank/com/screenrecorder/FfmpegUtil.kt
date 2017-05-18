@@ -17,6 +17,7 @@ class FfmpegUtil(context: Context, val response: EditVideoContract.Response) : E
     var ffmpeg: FFmpeg? = null
     var isConvertToGif = false
     var count = 0
+    var path: String? = null
 
     init {
         if (ffmpeg == null) {
@@ -40,6 +41,7 @@ class FfmpegUtil(context: Context, val response: EditVideoContract.Response) : E
             uiThread {
                 val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() +".mp4")
                 val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", start, "-to", end, "-strict", "-2", "-async", "1", croppedFile.absolutePath)
+                path = croppedFile.absolutePath
                 execFFmpegCommand(command)
             }
         }
@@ -61,10 +63,11 @@ class FfmpegUtil(context: Context, val response: EditVideoContract.Response) : E
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
-                val croppedFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".gif")
+                val gifFile: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".gif")
                 val pallet: File = File(Environment.getExternalStorageDirectory().absolutePath + "/" + System.currentTimeMillis() + "_pallet.png")
                 val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
-                val gifCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", croppedFile.absolutePath)
+                val gifCommand = arrayOf("-i", file.absolutePath, "-i", pallet.absolutePath, "-filter_complex", "fps=10,scale=320:-1:flags=lanczos [x]; [x][1:v] paletteuse", gifFile.absolutePath)
+                path = gifFile.absolutePath
                 execFFmpegCommand(palletCommand)
                 execFFmpegCommand(gifCommand)
             }
@@ -87,6 +90,7 @@ class FfmpegUtil(context: Context, val response: EditVideoContract.Response) : E
             uiThread {
                 val slowedVideo: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".mp4")
                 val command = arrayOf("-i", file.absolutePath, "-r", quality, "-filter:v", "setpts=3.5*PTS", "-preset", "ultrafast", slowedVideo.absolutePath)
+                path = slowedVideo.absolutePath
                 execFFmpegCommand(command)
             }
         }
@@ -109,6 +113,7 @@ class FfmpegUtil(context: Context, val response: EditVideoContract.Response) : E
                 Log.d("Ffmpeg", "output " + file.absolutePath)
                 val trimSong: File = File(Environment.getExternalStorageDirectory().absolutePath + "/"+ System.currentTimeMillis() + ".mp3")
                 val command = arrayOf("-ss", start, "-t", difference, "-i", file.absolutePath, trimSong.absolutePath)
+                path = trimSong.absolutePath
                 execFFmpegCommand(command)
             }
         }
@@ -157,7 +162,7 @@ class FfmpegUtil(context: Context, val response: EditVideoContract.Response) : E
             }
 
             isConvertToGif = false
-            response.finishedSuccessFully()
+            response.finishedSuccessFully(path)
             Log.d("ExecuteHandler", "ffmpeg : SUCCESS!")
         }
 

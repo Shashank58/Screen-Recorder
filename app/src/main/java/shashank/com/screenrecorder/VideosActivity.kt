@@ -3,6 +3,7 @@ package shashank.com.screenrecorder
 import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -13,7 +14,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,9 +28,8 @@ import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
-
-
 class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnClickListener {
+
     private val REQUEST_PERMISSION = 1
 
     private var videoAdapter: VideoAdapter? = null
@@ -82,10 +81,28 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
         video_list.adapter = videoAdapter
     }
 
-    override fun finishedSuccessFully() {
+    override fun finishedSuccessFully(path: String?) {
         if (progressDialog != null) {
             progressDialog!!.dismiss()
         }
+
+        if (purpose == 0) {
+            videoList = mediaHelper.getVideos(this)
+            toolbar_title.text = getString(R.string.videos)
+            media_select.setImageResource(R.drawable.ic_video)
+            videoAdapter?.notifyDataSetChanged()
+        } else {
+            songsList = mediaHelper.getSongs(this)
+            toolbar_title.text = getString(R.string.songs)
+            media_select.setImageResource(R.drawable.ic_music)
+            songAdapter?.notifyDataSetChanged()
+        }
+
+        AlertDialog.Builder(this)
+                .setTitle("Success!")
+                .setMessage("Your file is successfully saved at $path in your phone")
+                .setPositiveButton("Great", { _, _ ->  })
+                .create().show()
     }
 
     override fun onBackPressed() {
@@ -331,8 +348,6 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                     closeSongTrimPopup()
                     val start: String = AppUtil.getTime(song_trim_range.startValue)
                     val difference: String = AppUtil.getTime(song_trim_range.endValue - song_trim_range.startValue)
-                    Log.d("Video Activity", "Start - $start; Difference - $difference")
-                    Log.d("Video Activity", "Path - " + (Uri.parse(path).path))
                     editFile?.trimSong(File(Uri.parse(path).path), start, difference)
                 }
             }

@@ -17,7 +17,7 @@ interface EditVideoContract {
     interface Response {
         fun showProgress(title: String, message: String)
 
-        fun finishedSuccessFully()
+        fun finishedSuccessFully(path: String?)
 
         fun onFailure(message: String)
     }

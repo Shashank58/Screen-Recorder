@@ -39,14 +39,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
 
         if (!screenRecordHelper.isRecording()) {
             screenRecordHelper.init(projectionManager, mediaRecorder, this, screenDensity, this)
-        } else{
+        } else {
             circularAnimationDone = true
             onRecordingStarted()
         }
 
         val interpolator: OvershootInterpolator = OvershootInterpolator(2.5f)
 
-        record_screen.setOnTouchListener { v, event ->
+        record_screen.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=

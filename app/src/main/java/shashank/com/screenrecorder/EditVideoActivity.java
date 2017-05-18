@@ -177,10 +177,20 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
     }
 
     @Override
-    public void finishedSuccessFully() {
+    public void finishedSuccessFully(String path) {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Success!")
+                .setMessage("Your file is successfully saved at " + path + " in your phone")
+                .setPositiveButton("Great", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).create().show();
     }
 
     @Override
