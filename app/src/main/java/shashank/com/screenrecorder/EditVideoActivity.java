@@ -161,7 +161,8 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
 
                 String startTime = AppUtil.INSTANCE.getTime(rangePicker.getStartValue());
                 String endTime = AppUtil.INSTANCE.getTime(rangePicker.getEndValue());
-                ffmpegUtil.trimVideo(new File(Uri.parse(data).getPath()), startTime, endTime);
+                ffmpegUtil.trimVideo(new File(Uri.parse(data).getPath()), (int) (rangePicker.getEndValue() - rangePicker.getStartValue()),
+                        startTime, endTime);
                 break;
 
             case R.id.back:
@@ -184,7 +185,7 @@ public class EditVideoActivity extends AppCompatActivity implements CustomRange.
 
         new AlertDialog.Builder(this)
                 .setTitle("Success!")
-                .setMessage("Your file is successfully saved at " + path + " in your phone")
+                .setMessage("Your file is successfully saved at " + path + " in your phone. You can also check it out in your gallery!")
                 .setPositiveButton("Great", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

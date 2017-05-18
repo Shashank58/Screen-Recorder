@@ -44,19 +44,6 @@
 
     </FrameLayout>
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="62dp"
-        android:layout_height="62dp"
-        android:layout_below="@id/tool_bar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="-62dp"
-        android:indeterminateDrawable="@drawable/circular_indeterminate"
-        android:indeterminateDuration="350"
-        android:progressDrawable="@drawable/circular_progress_bar" />
-
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/video_list"
         android:layout_width="match_parent"

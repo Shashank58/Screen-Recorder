@@ -22,6 +22,7 @@ import android.widget.SeekBar
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_videos.*
 import kotlinx.android.synthetic.main.song_card.view.*
+import kotlinx.android.synthetic.main.video_card.*
 import kotlinx.android.synthetic.main.video_card.view.*
 import org.jetbrains.anko.intentFor
 import java.io.File
@@ -100,7 +101,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
 
         AlertDialog.Builder(this)
                 .setTitle("Success!")
-                .setMessage("Your file is successfully saved at $path in your phone")
+                .setMessage("Your file is successfully saved at $path in your phone. You can also check it out in your gallery!")
                 .setPositiveButton("Great", { _, _ ->  })
                 .create().show()
     }
@@ -193,23 +194,23 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                                 blur.visibility = View.VISIBLE
 
                                 blur.setOnClickListener {
-                                    hidePopup(null, null)
+                                    hidePopup(null, duration.toInt(), null)
                                 }
 
                                 low.setOnClickListener {
-                                    hidePopup("8", data)
+                                    hidePopup("8", duration.toInt(), data)
                                 }
 
                                 medium.setOnClickListener {
-                                    hidePopup("16", data)
+                                    hidePopup("16", duration.toInt(), data)
                                 }
 
                                 high.setOnClickListener {
-                                    hidePopup("30", data)
+                                    hidePopup("30", duration.toInt(), data)
                                 }
 
                                 very_high.setOnClickListener {
-                                    hidePopup("60", data)
+                                    hidePopup("60", duration.toInt(), data)
                                 }
                             }
 
@@ -221,14 +222,14 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                 }
             }
 
-            private fun hidePopup(quality: String?, data: String?) {
+            private fun hidePopup(quality: String?, duration: Int, data: String?) {
                 quality_popup.animate()
                         .setListener(object: AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator?) {
                                 quality_popup.visibility = View.GONE
                                 blur.visibility = View.GONE
                                 if (quality != null && data != null) {
-                                    editFile?.slowDownVideo(File(Uri.parse(data).path), quality)
+                                    editFile?.slowDownVideo(File(Uri.parse(data).path), duration, quality)
                                 }
                             }
                         }).setInterpolator(interpolator).scaleY(0f).scaleX(0f).start()

@@ -20,4 +20,12 @@ object AppUtil {
         return String.format(Locale.getDefault(), "%02d", hours) + ":" + String.format(Locale.getDefault(),
                 "%02d", mins) + ":" + String.format(Locale.getDefault(), "%02d", secs % 60)
     }
+
+    val mimeType_Video: String = "video/mp4"
+
+    val mimeType_Gif: String = "image/gif"
+
+    val mimeType_Image: String = "image/jpeg"
+
+    val mimeType_Song: String = "audio/mpeg3"
 }
