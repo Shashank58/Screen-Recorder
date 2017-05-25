@@ -10,7 +10,7 @@ interface EditVideoContract {
 
     fun convertVideoToGif(file: File)
 
-    fun slowDownVideo(file: File, duration: Int, quality: String)
+    fun slowDownVideo(file: File, duration: Int, quality: String, clipAudio: Boolean)
 
     fun trimSong(file: File, start: String, difference: String)
 

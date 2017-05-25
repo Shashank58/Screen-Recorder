@@ -13,7 +13,7 @@
     <string name="slow_down_your_videos_for_dramatic_effect">Slow down your videos for and feel the difference!</string>
     <string name="records_your_mobile_screen_and_saves_as_an_mp4">Records your mobile screen and saves as an mp4</string>
     <string name="videos">Videos</string>
-    <string name="choose_video_quality">Choose video quality</string>
+    <string name="clip_audio">Do you want to clip the audio for the video. Note that if you choose not to clip the audio, it will not be in sync with the video</string>
     <string name="trim_media">Trim media</string>
     <string name="convert_your_mp4_or_3gp_video_to_an_animated_gif">Convert your mp4 or 3gp video to an animated gif</string>
     <string name="slide_show">Slide show</string>
@@ -24,4 +24,6 @@
     <string name="trim">TRIM</string>
     <string name="zero">00:00</string>
     <string name="songs">Songs</string>
+    <string name="don_t_clip">DON\'T CLIP</string>
+    <string name="clip">CLIP</string>
 </resources>

@@ -22,7 +22,6 @@ import android.widget.SeekBar
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_videos.*
 import kotlinx.android.synthetic.main.song_card.view.*
-import kotlinx.android.synthetic.main.video_card.*
 import kotlinx.android.synthetic.main.video_card.view.*
 import org.jetbrains.anko.intentFor
 import java.io.File
@@ -184,37 +183,29 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                             .into(itemView.video_thumbnail)
                     itemView.video_card.setOnClickListener {
                         when(purpose) {
-                            0 -> {
+                            AppUtil.TRIM_VIDEO -> {
                                 startActivity(intentFor<EditVideoActivity>("data" to video.data, "duration" to duration))
                             }
 
-                            1 -> {
-                                quality_popup.visibility = View.VISIBLE
-                                quality_popup.animate().setInterpolator(interpolator).setListener(null).scaleY(1f).scaleX(1f).start()
+                            AppUtil.SLOW_VIDEO -> {
+                                clip_audio_pop_up.visibility = View.VISIBLE
+                                clip_audio_pop_up.animate().setInterpolator(interpolator).setListener(null).scaleY(1f).scaleX(1f).start()
                                 blur.visibility = View.VISIBLE
 
                                 blur.setOnClickListener {
-                                    hidePopup(null, duration.toInt(), null)
+                                    hidePopup(false, duration.toInt(), null)
                                 }
 
-                                low.setOnClickListener {
-                                    hidePopup("8", duration.toInt(), data)
+                                clip_audio.setOnClickListener {
+                                    hidePopup(true, duration.toInt(), data)
                                 }
 
-                                medium.setOnClickListener {
-                                    hidePopup("16", duration.toInt(), data)
-                                }
-
-                                high.setOnClickListener {
-                                    hidePopup("30", duration.toInt(), data)
-                                }
-
-                                very_high.setOnClickListener {
-                                    hidePopup("60", duration.toInt(), data)
+                                dont_clip_audio.setOnClickListener {
+                                    hidePopup(false, duration.toInt(), data)
                                 }
                             }
 
-                            2 -> {
+                            AppUtil.CONVERT_VIDEO -> {
                                 editFile?.convertVideoToGif(File(Uri.parse(data).path))
                             }
                         }
@@ -222,14 +213,14 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                 }
             }
 
-            private fun hidePopup(quality: String?, duration: Int, data: String?) {
-                quality_popup.animate()
+            private fun hidePopup(clipAudio: Boolean, duration: Int, data: String?) {
+                clip_audio_pop_up.animate()
                         .setListener(object: AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator?) {
-                                quality_popup.visibility = View.GONE
+                                clip_audio_pop_up.visibility = View.GONE
                                 blur.visibility = View.GONE
-                                if (quality != null && data != null) {
-                                    editFile?.slowDownVideo(File(Uri.parse(data).path), duration, quality)
+                                if (data != null) {
+                                    editFile?.slowDownVideo(File(Uri.parse(data).path), duration, "30", clipAudio)
                                 }
                             }
                         }).setInterpolator(interpolator).scaleY(0f).scaleX(0f).start()

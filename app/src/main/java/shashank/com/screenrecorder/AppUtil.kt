@@ -28,4 +28,10 @@ object AppUtil {
     val mimeType_Image: String = "image/jpeg"
 
     val mimeType_Song: String = "audio/mpeg3"
+
+    val TRIM_VIDEO = 0
+
+    val CONVERT_VIDEO = 2
+
+    val SLOW_VIDEO = 1
 }
