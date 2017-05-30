@@ -19,25 +19,19 @@ import java.io.File
  * Created by shashankm on 09/03/17.
  */
 class FfmpegUtil(val context: Context, val response: EditVideoContract.Response) : EditVideoContract {
-    var ffmpeg: FFmpeg? = null
+    var ffmpeg: FFmpeg = FFmpeg.getInstance(context)
     var isTwice = false
     var count = 0
-    var path: String? = null
-    var type: String = ""
+    lateinit var path: String
+    lateinit var type: String
     var duration: Int = -1
-
-    init {
-        if (ffmpeg == null) {
-            ffmpeg = FFmpeg.getInstance(context)
-        }
-    }
 
     override fun trimVideo(file: File, duration: Int, start: String, end: String) {
         response.showProgress("Trimming", "Yup working on it!")
         doAsync {
             try {
                 val loadResponse: Load = Load()
-                ffmpeg?.loadBinary(loadResponse)
+                ffmpeg.loadBinary(loadResponse)
             } catch (e: FFmpegNotSupportedException) {
                 e.printStackTrace()
                 Log.d("FFMPEG", "ffmpeg : Not supported")
@@ -63,7 +57,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
         doAsync {
             try {
                 val loadResponse: Load = Load()
-                ffmpeg?.loadBinary(loadResponse)
+                ffmpeg.loadBinary(loadResponse)
             } catch (e: FFmpegNotSupportedException) {
                 e.printStackTrace()
                 Log.d("FFMPEG", "ffmpeg : Not supported")
@@ -89,7 +83,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
         doAsync {
             try {
                 val loadResponse: Load = Load()
-                ffmpeg?.loadBinary(loadResponse)
+                ffmpeg.loadBinary(loadResponse)
             } catch (e: FFmpegNotSupportedException) {
                 e.printStackTrace()
                 Log.d("FFMPEG", "ffmpeg : Not supported")
@@ -119,7 +113,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
         doAsync {
             try {
                 val loadResponse: Load = Load()
-                ffmpeg?.loadBinary(loadResponse)
+                ffmpeg.loadBinary(loadResponse)
             } catch (e: FFmpegNotSupportedException) {
                 e.printStackTrace()
                 Log.d("FFMPEG", "ffmpeg : Not supported")
@@ -198,7 +192,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     private fun execFFmpegCommand(command: Array<String>) {
         val executeHandler: FFmpegExecuteResponseHandler = ExecuteHandler()
         try {
-            ffmpeg?.execute(command, executeHandler)
+            ffmpeg.execute(command, executeHandler)
         } catch (e: FFmpegCommandAlreadyRunningException) {
             e.printStackTrace()
         }

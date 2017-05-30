@@ -200,7 +200,7 @@
                             android:layout_height="56dp"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="16dp"
-                            android:src="@drawable/ic_slide_show" />
+                            android:src="@drawable/ic_video_editing" />
 
                         <TextView
                             android:layout_width="wrap_content"
