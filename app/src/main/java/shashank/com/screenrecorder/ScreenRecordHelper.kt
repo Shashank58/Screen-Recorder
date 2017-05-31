@@ -1,21 +1,25 @@
 package shashank.com.screenrecorder
 
+import android.content.ContentValues
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.MediaRecorder
+import android.media.MediaScannerConnection
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import android.util.SparseIntArray
+import java.io.File
 import java.io.IOException
-
 
 
 /**
  * Created by shashankm on 02/03/17.
  */
-object ScreenRecordHelper  {
+object ScreenRecordHelper {
     val REQUEST_CODE = 1
 
     private val ORIENTATION = SparseIntArray()
@@ -24,20 +28,21 @@ object ScreenRecordHelper  {
     private val mediaProjectionCallback: MediaProjectionCallback = MediaProjectionCallback(this)
 
     private var mediaProjection: MediaProjection? = null
-    private var virtualDisplay: VirtualDisplay? = null
+    lateinit private var virtualDisplay: VirtualDisplay
     private var isRecording = false
-    private var projectionManager: MediaProjectionManager? = null
-    private var mediaRecorder: MediaRecorder? = null
-    private var activity: MainActivity? = null
+    lateinit private var projectionManager: MediaProjectionManager
+    lateinit private var mediaRecorder: MediaRecorder
+    lateinit private var activity: MainActivity
     private var screenDensity: Int = 0
-    private var recordContract: RecordContract? = null
+    lateinit private var recordContract: RecordContract
+    private var path: String = ""
 
     interface RecordContract {
         fun onRecordingStarted()
     }
 
-    fun init (projectionManager: MediaProjectionManager, mediaRecorder: MediaRecorder, activity: MainActivity,
-              screenDensity: Int, recordContract: RecordContract) {
+    fun init(projectionManager: MediaProjectionManager, mediaRecorder: MediaRecorder, activity: MainActivity,
+             screenDensity: Int, recordContract: RecordContract) {
         this.projectionManager = projectionManager
         this.mediaRecorder = mediaRecorder
         this.activity = activity
@@ -47,19 +52,36 @@ object ScreenRecordHelper  {
 
     fun initRecording() {
         try {
-            mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
-            mediaRecorder!!.setVideoSource(MediaRecorder.VideoSource.SURFACE)
-            mediaRecorder!!.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            mediaRecorder!!.setOutputFile(Environment.getExternalStorageDirectory().path + "/"+ System
-                    .currentTimeMillis() +".mp4")
-            mediaRecorder!!.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT)
-            mediaRecorder!!.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-            mediaRecorder!!.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            mediaRecorder!!.setVideoEncodingBitRate(3000000)
-            mediaRecorder!!.setVideoFrameRate(30)
-            val rotation = activity!!.windowManager.defaultDisplay.rotation
-            mediaRecorder!!.setOrientationHint(ORIENTATION.get(rotation + 90))
-            mediaRecorder!!.prepare()
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+            mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+
+            if (Environment.getExternalStorageDirectory() != null) {
+                val mediaStorageDir = File(Environment.getExternalStorageDirectory(),
+                        "ScreenRecorder")
+
+                // Create the storage directory if it does not exist
+                if (!mediaStorageDir.exists()) {
+                    if (!mediaStorageDir.mkdirs()) {
+                        Log.d("Media Util", "failed to create directory")
+                        return
+                    }
+                }
+
+                path = mediaStorageDir.path + File.separator + System.currentTimeMillis() + ".mp4"
+                mediaRecorder.setOutputFile(path)
+            } else {
+                return
+            }
+
+            mediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT)
+            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            mediaRecorder.setVideoEncodingBitRate(3000000)
+            mediaRecorder.setVideoFrameRate(30)
+            val rotation = activity.windowManager.defaultDisplay.rotation
+            mediaRecorder.setOrientationHint(ORIENTATION.get(rotation + 90))
+            mediaRecorder.prepare()
             startRecording()
         } catch (e: IOException) {
             e.printStackTrace()
@@ -70,51 +92,52 @@ object ScreenRecordHelper  {
 
     private fun startRecording() {
         if (mediaProjection == null) {
-            activity!!.startActivityForResult(projectionManager!!.createScreenCaptureIntent(), REQUEST_CODE)
+            activity.startActivityForResult(projectionManager.createScreenCaptureIntent(), REQUEST_CODE)
             return
         }
 
         virtualDisplay = createVirtualDisplay()
-        mediaRecorder!!.start()
-        recordContract!!.onRecordingStarted()
+        mediaRecorder.start()
+        recordContract.onRecordingStarted()
         isRecording = true
     }
 
-    private fun createVirtualDisplay(): VirtualDisplay? {
-        return mediaProjection?.createVirtualDisplay("Main Activity", DISPLAY_WIDTH, DISPLAY_HEIGHT, screenDensity,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder!!.surface, null, null)
+    private fun createVirtualDisplay(): VirtualDisplay {
+        return mediaProjection!!.createVirtualDisplay("Main Activity", DISPLAY_WIDTH, DISPLAY_HEIGHT, screenDensity,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder.surface, null, null)
     }
 
     fun stopRecording() {
-        if (mediaRecorder == null) return
-
-        mediaRecorder!!.stop()
-        mediaRecorder!!.reset()
+        mediaRecorder.stop()
+        mediaRecorder.reset()
         isRecording = false
-        if (virtualDisplay == null) {
-            return
-        }
-
-        virtualDisplay?.release()
+        virtualDisplay.release()
         destroyMediaProjection()
+        addMediaToGallery()
+    }
+
+    fun addMediaToGallery() {
+        val values = ContentValues()
+        values.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis())
+        values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
+        values.put(MediaStore.MediaColumns.DATA, path)
+
+        activity.contentResolver?.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values) ?: return
+        MediaScannerConnection.scanFile(activity, arrayOf(path), arrayOf("video/mp4"), null)
     }
 
     fun pauseRecorder() {
-        if (mediaRecorder != null) {
-            mediaRecorder?.stop()
-            isRecording = false
-        }
+        mediaRecorder.stop()
+        isRecording = false
     }
 
     fun resumeRecorder() {
-        if (mediaRecorder != null) {
-            mediaRecorder?.start()
-            isRecording = true
-        }
+        mediaRecorder.start()
+        isRecording = true
     }
 
     fun registerMediaProjection(resultCode: Int, data: Intent?) {
-        mediaProjection = projectionManager!!.getMediaProjection(resultCode, data)
+        mediaProjection = projectionManager.getMediaProjection(resultCode, data)
         mediaProjection?.registerCallback(mediaProjectionCallback, null)
         startRecording()
     }
@@ -131,8 +154,8 @@ object ScreenRecordHelper  {
 
         override fun onStop() {
             super.onStop()
-            screenRecordHelper.mediaRecorder!!.stop()
-            screenRecordHelper.mediaRecorder!!.reset()
+            screenRecordHelper.mediaRecorder.stop()
+            screenRecordHelper.mediaRecorder.reset()
 
             screenRecordHelper.mediaProjection = null
             screenRecordHelper.stopScreenSharing()
@@ -140,11 +163,7 @@ object ScreenRecordHelper  {
     }
 
     private fun stopScreenSharing() {
-        if (virtualDisplay == null) {
-            return
-        }
-
-        virtualDisplay?.release()
+        virtualDisplay.release()
         destroyMediaProjection()
     }
 }

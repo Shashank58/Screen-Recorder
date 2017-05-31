@@ -54,8 +54,8 @@
         android:paddingTop="10dp">
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_stop"
             android:tint="@color/red_500"
@@ -69,7 +69,8 @@
             android:layout_gravity="center_vertical"
             android:text="@string/stop"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="14sp"
+            android:lineSpacingExtra="1dp"
             android:layout_marginStart="4dp"
             android:textStyle="bold"
             />

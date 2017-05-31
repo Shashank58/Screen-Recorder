@@ -14,6 +14,8 @@ interface EditVideoContract {
 
     fun trimSong(file: File, start: String, difference: String)
 
+    fun mixVideoWithSong(songFile: File, videoFile: File)
+
     interface Response {
         fun showProgress(title: String, message: String)
 

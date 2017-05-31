@@ -10,7 +10,7 @@
     <string name="record_screen">Record Screen</string>
     <string name="edit_video">Edit Video</string>
     <string name="trim_your_videos_and_save_them_as_mp4_3gp_or_gif">Trim your videos/songs and save them as mp4/mp3</string>
-    <string name="slow_down_your_videos_for_dramatic_effect">Slow down your videos for and feel the difference!</string>
+    <string name="slow_down_your_videos_for_dramatic_effect">Slow down any of your videos and feel the difference!</string>
     <string name="records_your_mobile_screen_and_saves_as_an_mp4">Records your mobile screen and saves as an mp4</string>
     <string name="videos">Videos</string>
     <string name="clip_audio">Do you want to clip the audio for the video. Note that if you choose not to clip the audio, it will not be in sync with the video</string>
@@ -20,10 +20,14 @@
     <string name="create_a_video_slide_show_from_a_bunch_of_existing_images">Create a video slide show from a bunch of existing images</string>
     <string name="pause_or_stop_recording_through_the_given_controls">Your screen is recording. Please press stop to stop recording and save video</string>
     <string name="pause">Pause</string>
-    <string name="stop">Stop</string>
+    <string name="stop">STOP</string>
     <string name="trim">TRIM</string>
     <string name="zero">00:00</string>
     <string name="songs">Songs</string>
     <string name="don_t_clip">DON\'T CLIP</string>
     <string name="clip">CLIP</string>
+    <string name="video_mix">Video mix</string>
+    <string name="combine_a_video_with_any_song_and_create_something_new">Combine a video with any song and create art!</string>
+    <string name="select_video">Select video</string>
+    <string name="select_song">Select song</string>
 </resources>

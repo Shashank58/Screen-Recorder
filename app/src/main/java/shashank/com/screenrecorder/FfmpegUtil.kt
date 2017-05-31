@@ -122,13 +122,40 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
-                Log.d("Ffmpeg", "output " + file.absolutePath)
                 val trimSong: File = getFile(".mp3", null) ?: return@uiThread
                 val command = arrayOf("-ss", start, "-t", difference, "-i", file.absolutePath, trimSong.absolutePath)
                 path = trimSong.absolutePath
                 type = AppUtil.mimeType_Song
                 duration = difference.toInt()
                 execFFmpegCommand(command)
+            }
+        }
+    }
+
+    override fun mixVideoWithSong(songFile: File, videoFile: File) {
+        response.showProgress("Mixing", "Combining media...")
+        doAsync {
+            try {
+                val loadResponse: Load = Load()
+                ffmpeg.loadBinary(loadResponse)
+            } catch (e: FFmpegNotSupportedException) {
+                e.printStackTrace()
+                Log.d("FFMPEG", "ffmpeg : Not supported")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.d("FFMPEG", "ffmpeg : Exception")
+            }
+            uiThread {
+                val mixedMedia: File = getFile(".mp4", null) ?: return@uiThread
+                val mutedVideo = getFile(".mp4", "mutedVideo") ?: return@uiThread
+
+                isTwice = true
+                path = mixedMedia.absolutePath
+                type = AppUtil.mimeType_Video
+
+                execFFmpegCommand(arrayOf("-i", videoFile.absolutePath, "-an", mutedVideo.absolutePath))
+                execFFmpegCommand(arrayOf("-i", mutedVideo.absolutePath, "-i", songFile.absolutePath, "-c:v", "copy",
+                        "-c:a", "aac", "-strict", "experimental", "-shortest", mixedMedia.absolutePath))
             }
         }
     }
