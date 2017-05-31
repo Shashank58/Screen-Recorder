@@ -182,7 +182,7 @@
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/slide_show"
+                    android:id="@+id/video_mix"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
@@ -207,7 +207,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="8dp"
-                            android:text="@string/slide_show"
+                            android:text="@string/video_mix"
                             android:textColor="#212121"
                             android:textSize="16sp" />
 
@@ -220,7 +220,7 @@
                             android:layout_marginStart="12dp"
                             android:layout_marginTop="4dp"
                             android:gravity="center"
-                            android:text="@string/create_a_video_slide_show_from_a_bunch_of_existing_images" />
+                            android:text="@string/combine_a_video_with_any_song_and_create_something_new" />
 
                     </LinearLayout>
 

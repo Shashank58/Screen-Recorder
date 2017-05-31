@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         edit_video.setOnClickListener(this)
         slow_motion.setOnClickListener(this)
         convert_video_to_gif.setOnClickListener(this)
+        video_mix.setOnClickListener(this)
     }
 
     override fun onRecordingStarted() {
@@ -136,17 +137,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
 
     override fun onClick(v: View?) {
         if (v != null) when (v.id) {
-            R.id.edit_video -> {
-                animateCard(edit_video, 0)
-            }
+            R.id.edit_video -> animateCard(v, 0)
 
-            R.id.slow_motion -> {
-                animateCard(slow_motion, 1)
-            }
+            R.id.slow_motion -> animateCard(v, 1)
 
-            R.id.convert_video_to_gif -> {
-                animateCard(convert_video_to_gif, 2)
-            }
+            R.id.convert_video_to_gif -> animateCard(v, 2)
+
+            R.id.video_mix -> animateCard(v, 3)
         }
     }
 
@@ -173,6 +170,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
                                     }
 
                                     override fun onAnimationEnd(animation: Animator?) {
+                                        if (purpose == 3) {
+                                            startActivity(intentFor<MixMediaActivity>())
+                                            return
+                                        }
+
                                         startActivity(intentFor<VideosActivity>("purpose" to purpose))
                                     }
 
@@ -210,7 +212,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         if (requestCode == REQUEST_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]
                     == PackageManager.PERMISSION_GRANTED) {
-                screenRecordHelper.initRecording()
+
             }
         }
     }
