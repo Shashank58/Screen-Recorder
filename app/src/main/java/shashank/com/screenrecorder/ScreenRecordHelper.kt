@@ -102,6 +102,8 @@ object ScreenRecordHelper {
         isRecording = true
     }
 
+    fun getProjectionManager(): MediaProjectionManager = projectionManager
+
     private fun createVirtualDisplay(): VirtualDisplay {
         return mediaProjection!!.createVirtualDisplay("Main Activity", DISPLAY_WIDTH, DISPLAY_HEIGHT, screenDensity,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder.surface, null, null)

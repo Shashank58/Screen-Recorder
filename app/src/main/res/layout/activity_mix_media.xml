@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_margin="36dp"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:cardBackgroundColor="#C51162"
             >
 

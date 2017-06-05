@@ -34,4 +34,6 @@ object AppUtil {
     val CONVERT_VIDEO = 2
 
     val SLOW_VIDEO = 1
+
+    val SCREEN_SHARE_STOPPED = "screen_share_stopped"
 }

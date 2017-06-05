@@ -3,14 +3,17 @@ package shashank.com.screenrecorder
 import android.Manifest
 import android.animation.Animator
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
 import android.view.MotionEvent
@@ -23,8 +26,11 @@ import org.jetbrains.anko.intentFor
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelper.RecordContract {
     private val REQUEST_PERMISSION = 2
+    private val interpolator: OvershootInterpolator = OvershootInterpolator(2.5f)
+
     private var screenRecordHelper: ScreenRecordHelper = ScreenRecordHelper
     private var circularAnimationDone = false
+    private var userDeniedRecord = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,11 +50,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
             onRecordingStarted()
         }
 
-        val interpolator: OvershootInterpolator = OvershootInterpolator(2.5f)
-
         record_screen.setOnTouchListener { _, event ->
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
+                MotionEvent.ACTION_UP -> {
                     if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                             PackageManager.PERMISSION_GRANTED) || (ContextCompat.checkSelfPermission(this, Manifest.permission
                             .RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)) {
@@ -59,8 +63,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
 
                     if (circularAnimationDone) {
                         if (screenRecordHelper.isRecording()) {
-                            screenRecordHelper.stopRecording()
+                            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NotificationCallbacks.STOP))
+                            reShowRecordView()
                         } else {
+                            if (userDeniedRecord) {
+                                startActivityForResult(ScreenRecordHelper.getProjectionManager().createScreenCaptureIntent(), ScreenRecordHelper.REQUEST_CODE)
+                                return@setOnTouchListener true
+                            }
                             screenRecordHelper.initRecording()
                         }
                         return@setOnTouchListener true
@@ -79,6 +88,40 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         slow_motion.setOnClickListener(this)
         convert_video_to_gif.setOnClickListener(this)
         video_mix.setOnClickListener(this)
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(AppUtil.SCREEN_SHARE_STOPPED))
+    }
+
+    internal var receiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                AppUtil.SCREEN_SHARE_STOPPED -> {
+                    reShowRecordView()
+                }
+            }
+        }
+    }
+
+    private fun reShowRecordView() {
+        if (isFinishing) return
+
+        record_icon.scaleX = 1f
+        record_icon.scaleY = 1f
+
+        record_title.scaleX = 1f
+        record_title.scaleY = 1f
+        record_title.text = getString(R.string.record_screen)
+
+        record_description.scaleX = 1f
+        record_description.scaleY = 1f
+        record_description.visibility = View.VISIBLE
+
+        record_title.setTextColor(ContextCompat.getColor(this, R.color.primary_text))
+        record_icon.setImageResource(R.drawable.ic_play_record)
+
+        circular_reveal.visibility = View.INVISIBLE
+        circular_reveal.setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent))
+        circularAnimationDone = false
     }
 
     override fun onRecordingStarted() {
@@ -92,7 +135,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         circular_reveal.setBackgroundColor(ContextCompat.getColor(this, R.color.red_500))
     }
 
-    private fun circularRevealAnimation(event: MotionEvent, interpolator: OvershootInterpolator, recordTitle: Int, recordIcon: Int) {
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        super.onDestroy()
+    }
+
+    private fun circularRevealAnimation(event: MotionEvent?, interpolator: OvershootInterpolator, recordTitle: Int, recordIcon: Int) {
         record_icon.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
         record_title.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
         record_description.animate().scaleY(0f).scaleX(0f).setDuration(250).start()
@@ -100,9 +148,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         record_icon.setImageResource(recordIcon)
         record_title.text = getText(recordTitle)
         record_title.setTextColor(ContextCompat.getColor(this, R.color.white))
+        circular_reveal.visibility = View.VISIBLE
 
-        val cx = event.x.toInt() //Visible layout
-        val cy = event.y.toInt()
+        val cx = event?.x?.toInt() ?: circular_reveal.width / 2 //Visible layout
+        val cy = event?.y?.toInt() ?: circular_reveal.height / 2
 
         val finalRadius = Math.hypot(circular_reveal.width.toDouble(), circular_reveal.height.toDouble()).toInt()
         val initialRadius = 0
@@ -131,7 +180,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
             }
         })
 
-        circular_reveal.visibility = View.VISIBLE
         anim.start()
     }
 
@@ -201,9 +249,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode != screenRecordHelper.REQUEST_CODE || resultCode != Activity.RESULT_OK) {
+            userDeniedRecord = true
             return
         }
 
+        userDeniedRecord = false
         screenRecordHelper.registerMediaProjection(resultCode, data)
         startService(intentFor<RecordService>())
     }
@@ -212,7 +262,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
         if (requestCode == REQUEST_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]
                     == PackageManager.PERMISSION_GRANTED) {
+                if (circularAnimationDone) {
+                    screenRecordHelper.initRecording()
+                    return
+                }
 
+                circularAnimationDone = true
+                circularRevealAnimation(null, interpolator, R.string.start_recording, R.drawable.ic_play_arrow)
             }
         }
     }

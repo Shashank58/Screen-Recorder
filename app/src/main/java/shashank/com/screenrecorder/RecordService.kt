@@ -9,12 +9,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.IBinder
+import android.support.v4.content.LocalBroadcastManager
 import android.widget.RemoteViews
 
 class RecordService : Service() {
 
-    private var notificationManager: NotificationManager? = null
-    private var notification: Notification? = null
+    lateinit private var notificationManager: NotificationManager
+    lateinit private var notification: Notification
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -36,9 +37,9 @@ class RecordService : Service() {
         val notificationBuilder = Notification.Builder(this).setOngoing(true).setContentTitle("Title")
                 .setContentText("Text").setAutoCancel(true)
         notification = notificationBuilder.build()
-        notification!!.contentIntent = pendingIntent
-        notification!!.bigContentView = expandedView
-        notification!!.icon = R.drawable.ic_stat_videocam
+        notification.contentIntent = pendingIntent
+        notification.bigContentView = expandedView
+        notification.icon = R.drawable.ic_stat_videocam
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(NotificationCallbacks.PLAY_PAUSE)
@@ -47,7 +48,10 @@ class RecordService : Service() {
         registerReceiver(receiver, intentFilter)
         startForeground(FOREGROUND_NOTIFICATION, notification)
 
-        notificationManager!!.notify(FOREGROUND_NOTIFICATION, notification)
+        notificationManager.notify(FOREGROUND_NOTIFICATION, notification)
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver,
+                 IntentFilter(NotificationCallbacks.STOP))
     }
 
     internal var receiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -58,7 +62,8 @@ class RecordService : Service() {
                     unregisterReceiver(this)
                     stopForeground(true)
                     stopSelf()
-                    notificationManager!!.cancel(FOREGROUND_NOTIFICATION)
+                    notificationManager.cancel(FOREGROUND_NOTIFICATION)
+                    LocalBroadcastManager.getInstance(this@RecordService).sendBroadcast(Intent(AppUtil.SCREEN_SHARE_STOPPED))
                 }
 
                 NotificationCallbacks.PLAY_PAUSE -> if (ScreenRecordHelper.isRecording()) {
@@ -68,6 +73,11 @@ class RecordService : Service() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        super.onDestroy()
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {

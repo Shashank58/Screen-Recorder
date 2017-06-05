@@ -147,7 +147,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
             }
             uiThread {
                 val mixedMedia: File = getFile(".mp4", null) ?: return@uiThread
-                val mutedVideo = getFile(".mp4", "mutedVideo") ?: return@uiThread
+                val mutedVideo: File = getFile(".mp4", "mutedVideo") ?: return@uiThread
 
                 isTwice = true
                 path = mixedMedia.absolutePath
