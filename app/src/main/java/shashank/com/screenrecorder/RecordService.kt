@@ -34,8 +34,8 @@ class RecordService : Service() {
 
         expandedView.setOnClickPendingIntent(R.id.stop, stopIntent)
 
-        val notificationBuilder = Notification.Builder(this).setOngoing(true).setContentTitle("Title")
-                .setContentText("Text").setAutoCancel(true)
+        val notificationBuilder = Notification.Builder(this).setOngoing(true).setContentTitle("Screen Recorder")
+                .setContentText("Your screen is being recorded").setAutoCancel(true)
         notification = notificationBuilder.build()
         notification.contentIntent = pendingIntent
         notification.bigContentView = expandedView

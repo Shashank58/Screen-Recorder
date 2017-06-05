@@ -24,9 +24,6 @@ import kotlinx.android.synthetic.main.video_card.view.*
 import java.io.File
 
 
-
-
-
 class MixMediaActivity : AppCompatActivity(), EditVideoContract.Response {
     private val REQUEST_PERMISSION = 1
     private val animation by lazy {
