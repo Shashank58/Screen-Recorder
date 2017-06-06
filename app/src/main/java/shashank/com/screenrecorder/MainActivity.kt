@@ -20,6 +20,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.animation.OvershootInterpolator
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.intentFor
 
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelp
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Fabric.with(this, Crashlytics())
 
         val displayMetrics: DisplayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)

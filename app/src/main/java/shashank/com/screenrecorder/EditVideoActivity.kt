@@ -27,8 +27,10 @@ class EditVideoActivity : AppCompatActivity(), CustomRange.RangeChangeListener, 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_video)
 
+
         data = intent.getStringExtra("data")
         val duration = intent.getLongExtra("duration", 0).toInt()
+        back.setOnClickListener(this)
 
         val maxFileDuration = 1000 * 60 * 5 // 5 minutes
         if (duration > maxFileDuration) {
@@ -73,7 +75,6 @@ class EditVideoActivity : AppCompatActivity(), CustomRange.RangeChangeListener, 
 
         video_container.setOnClickListener(this)
         trim_video.setOnClickListener(this)
-        back.setOnClickListener(this)
     }
 
     private fun hidePlayPause() {
