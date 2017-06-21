@@ -2,16 +2,21 @@ package shashank.com.screenrecorder
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.media.MediaScannerConnection
 import android.os.Environment
 import android.provider.MediaStore
+import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.github.hiteshsondhi88.libffmpeg.*
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.uiThread
 import java.io.File
+
+
 
 
 
@@ -27,7 +32,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     var duration: Int = -1
 
     override fun trimVideo(file: File, duration: Int, start: String, end: String) {
-        response.showProgress("Trimming", "Yup working on it!")
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Trimming", "description" to "Yup working on it!"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -51,9 +56,10 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun convertVideoToGif(file: File) {
+        Log.d("ExecuteHandler", "ffmpeg : STARTED NOW!")
         isTwice = true
         count = 0
-        response.showProgress("Converting", "Working our magic!")
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Converting", "description" to "Working our magic!"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -79,7 +85,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun slowDownVideo(file: File, duration: Int, quality: String, clipAudio: Boolean) {
-        response.showProgress("Converting", "Slowing it down!")
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Converting", "description" to "Slowing it down!"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -109,7 +115,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun trimSong(file: File, start: String, difference: String) {
-        response.showProgress("Converting", "Trimming down to your needs!")
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Converting", "description" to "Trimming down to your needs!"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -133,7 +139,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun mixVideoWithSong(songFile: File, videoFile: File) {
-        response.showProgress("Mixing", "Combining media...")
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Mixing", "description" to "Combining media..."))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -194,6 +200,10 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
 
         context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
         MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(type), null)
+        val intent = Intent(NotificationCallbacks.CONVERSION_SUCCESS)
+        intent.putExtra("path", path)
+        intent.putExtra("type", type)
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
     }
 
     private fun getFile(fileFormat: String, name: String?): File? {
@@ -261,13 +271,12 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
             isTwice = false
 
             addMediaToGallery()
-            response.finishedSuccessFully(path)
             Log.d("ExecuteHandler", "ffmpeg : SUCCESS!")
         }
 
         override fun onProgress(message: String?) {
             super.onProgress(message)
-            Log.d("ExecuteHandler", "Progresing....." + message)
+            Log.d("ExecuteHandler", "Progresing..... $message")
         }
     }
 }

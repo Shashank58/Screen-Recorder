@@ -7,4 +7,6 @@ package shashank.com.screenrecorder
 internal object NotificationCallbacks {
     val PLAY_PAUSE = "play_pause"
     val STOP = "stop"
+    val CONVERSION_SUCCESS = "conversion_success"
+    val CONVERSION_FAILURE = "conversion_failure"
 }

@@ -26,7 +26,7 @@ class RecordService : Service() {
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val expandedView = RemoteViews(packageName, R.layout.notification_expanded)
+        val expandedView = RemoteViews(packageName, R.layout.screen_record_notification_expanded)
         val stopIntent = PendingIntent.getBroadcast(this, 0, Intent(NotificationCallbacks.STOP), 0)
         val pendingIntent = PendingIntent.getActivity(this, 0, Intent(this,
                 MainActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
