@@ -32,10 +32,9 @@ class ConvertMediaService : Service() {
 
         val expandedView = RemoteViews(packageName, R.layout.converting_notification_expanded)
 
-        Log.d("Convert Media Service", "Title " + intent.getStringExtra("title"))
         expandedView.setTextViewText(R.id.title, intent.getStringExtra("title"))
 
-        val notificationBuilder = Notification.Builder(this).setOngoing(false).setAutoCancel(true)
+        val notificationBuilder = Notification.Builder(this).setOngoing(true).setAutoCancel(true)
         notification = notificationBuilder.build()
         notification.bigContentView = expandedView
         notification.icon = R.drawable.ic_stat_videocam
@@ -57,11 +56,12 @@ class ConvertMediaService : Service() {
                     // Stop indeterminate progressbar and make notification click redirect to converted media
                     val pendingIntent = PendingIntent.getActivity(this@ConvertMediaService, 0, Intent(Intent.ACTION_VIEW, FileProvider
                             .getUriForFile(context, context.applicationContext.packageName + ".provider", File(intent.getStringExtra
-                            ("path"), intent.getStringExtra("type")))).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_UPDATE_CURRENT)
+                            ("path")))).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_UPDATE_CURRENT)
 
                     val expandedView = RemoteViews(packageName, R.layout.converting_notification_expanded)
-                    expandedView.setTextViewText(R.id.title, "Finished!")
+                    expandedView.setTextViewText(R.id.title, "Success")
                     expandedView.setViewVisibility(R.id.progress_bar, View.GONE)
+                    expandedView.setViewVisibility(R.id.description, View.VISIBLE)
 
                     val notificationBuilder = Notification.Builder(this@ConvertMediaService).setOngoing(false).setAutoCancel(true)
 

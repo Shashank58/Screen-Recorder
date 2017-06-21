@@ -1,5 +1,6 @@
 package shashank.com.screenrecorder
 
+
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -17,9 +18,6 @@ import org.jetbrains.anko.uiThread
 import java.io.File
 
 
-
-
-
 /**
  * Created by shashankm on 09/03/17.
  */
@@ -32,7 +30,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     var duration: Int = -1
 
     override fun trimVideo(file: File, duration: Int, start: String, end: String) {
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Trimming", "description" to "Yup working on it!"))
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Trimming video"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -59,7 +57,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
         Log.d("ExecuteHandler", "ffmpeg : STARTED NOW!")
         isTwice = true
         count = 0
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Converting", "description" to "Working our magic!"))
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Converting your video to gif"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -85,7 +83,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun slowDownVideo(file: File, duration: Int, quality: String, clipAudio: Boolean) {
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Converting", "description" to "Slowing it down!"))
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Slowing down video"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -115,7 +113,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun trimSong(file: File, start: String, difference: String) {
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Converting", "description" to "Trimming down to your needs!"))
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Trimming song"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -139,7 +137,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun mixVideoWithSong(songFile: File, videoFile: File) {
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Mixing", "description" to "Combining media..."))
+        context.startService(context.intentFor<ConvertMediaService>("title" to "Mixing media"))
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -199,11 +197,11 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
         values.put(MediaStore.MediaColumns.DATA, path)
 
         context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
-        MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(type), null)
-        val intent = Intent(NotificationCallbacks.CONVERSION_SUCCESS)
-        intent.putExtra("path", path)
-        intent.putExtra("type", type)
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+        MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(type)) { path, uri ->
+            val intent = Intent(NotificationCallbacks.CONVERSION_SUCCESS)
+            intent.putExtra("path", path)
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+        }
     }
 
     private fun getFile(fileFormat: String, name: String?): File? {
