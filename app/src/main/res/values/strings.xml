@@ -31,4 +31,5 @@
     <string name="select_video">Select video</string>
     <string name="select_song">Select song</string>
     <string name="finished_your_customization">Finished your customization, click on me to view your customized media</string>
+    <string name="gallery">Gallery</string>
 </resources>

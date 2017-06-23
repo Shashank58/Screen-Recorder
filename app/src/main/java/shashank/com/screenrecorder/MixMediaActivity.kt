@@ -80,6 +80,14 @@ class MixMediaActivity : AppCompatActivity(), EditVideoContract.Response {
                 .create().show()
     }
 
+    override fun showBusy() {
+        AlertDialog.Builder(this)
+                .setTitle("Busy!")
+                .setMessage("Please wait while we finish up with your earlier media transformation")
+                .setPositiveButton("Ok", { _, _ ->  })
+                .create().show()
+    }
+
     override fun onFailure(message: String) {
         if (progressDialog != null) {
             progressDialog!!.dismiss()

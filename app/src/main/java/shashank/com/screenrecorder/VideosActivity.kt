@@ -29,7 +29,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnClickListener {
-
     private val REQUEST_PERMISSION = 1
 
     private var videoAdapter: VideoAdapter? = null
@@ -116,6 +115,14 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
     override fun onDestroy() {
         mediaHelper.release()
         super.onDestroy()
+    }
+
+    override fun showBusy() {
+        AlertDialog.Builder(this)
+                .setTitle("Busy!")
+                .setMessage("Please wait while we finish up with your earlier media transformation")
+                .setPositiveButton("Ok", { _, _ ->  })
+                .create().show()
     }
 
     override fun onClick(v: View?) {

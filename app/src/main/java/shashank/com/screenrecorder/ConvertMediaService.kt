@@ -9,12 +9,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.IBinder
-import android.support.v4.content.FileProvider
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import java.io.File
+import org.jetbrains.anko.intentFor
+
 
 /**
  * Created by shashankm on 20/06/17.
@@ -33,10 +33,12 @@ class ConvertMediaService : Service() {
         val expandedView = RemoteViews(packageName, R.layout.converting_notification_expanded)
 
         expandedView.setTextViewText(R.id.title, intent.getStringExtra("title"))
+        expandedView.setViewVisibility(R.id.progress_bar, View.VISIBLE)
+        expandedView.setViewVisibility(R.id.description, View.GONE)
 
         val notificationBuilder = Notification.Builder(this).setOngoing(true).setAutoCancel(true)
         notification = notificationBuilder.build()
-        notification.bigContentView = expandedView
+        notification.contentView = expandedView
         notification.icon = R.drawable.ic_stat_videocam
 
         startForeground(RecordService.FOREGROUND_NOTIFICATION, notification)
@@ -53,10 +55,8 @@ class ConvertMediaService : Service() {
             Log.d("Convert Media Service", "Coming with it")
             when (intent.action) {
                 NotificationCallbacks.CONVERSION_SUCCESS -> {
-                    // Stop indeterminate progressbar and make notification click redirect to converted media
-                    val pendingIntent = PendingIntent.getActivity(this@ConvertMediaService, 0, Intent(Intent.ACTION_VIEW, FileProvider
-                            .getUriForFile(context, context.applicationContext.packageName + ".provider", File(intent.getStringExtra
-                            ("path")))).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_UPDATE_CURRENT)
+                    val pendingIntent = PendingIntent.getActivity(this@ConvertMediaService, 0, Intent(Intent.ACTION_GET_CONTENT)
+                            .setType(intent.getStringExtra("type")), PendingIntent.FLAG_UPDATE_CURRENT)
 
                     val expandedView = RemoteViews(packageName, R.layout.converting_notification_expanded)
                     expandedView.setTextViewText(R.id.title, "Success")
@@ -67,8 +67,8 @@ class ConvertMediaService : Service() {
 
                     notification = notificationBuilder.build()
                     notification.contentIntent = pendingIntent
-                    notification.bigContentView = expandedView
-                    notification.icon = R.drawable.ic_stat_videocam
+                    notification.contentView = expandedView
+                    notification.icon = R.drawable.ic_convert_white
 
                     startForeground(RecordService.FOREGROUND_NOTIFICATION, notification)
                     notificationManager.notify(RecordService.FOREGROUND_NOTIFICATION, notification)
@@ -76,6 +76,24 @@ class ConvertMediaService : Service() {
 
                 NotificationCallbacks.CONVERSION_FAILURE -> {
                     // Display error message
+                    val pendingIntent = PendingIntent.getActivity(this@ConvertMediaService, 0, intentFor<MainActivity>()
+                            , PendingIntent.FLAG_UPDATE_CURRENT)
+
+                    val expandedView = RemoteViews(packageName, R.layout.converting_notification_expanded)
+                    expandedView.setTextViewText(R.id.title, "Failure")
+                    expandedView.setTextViewText(R.id.description, "Oops, looks like the media conversion failed, please try again")
+                    expandedView.setViewVisibility(R.id.progress_bar, View.GONE)
+                    expandedView.setViewVisibility(R.id.description, View.VISIBLE)
+
+                    val notificationBuilder = Notification.Builder(this@ConvertMediaService).setOngoing(false).setAutoCancel(true)
+
+                    notification = notificationBuilder.build()
+                    notification.contentIntent = pendingIntent
+                    notification.contentView = expandedView
+                    notification.icon = R.drawable.ic_convert_white
+
+                    startForeground(RecordService.FOREGROUND_NOTIFICATION, notification)
+                    notificationManager.notify(RecordService.FOREGROUND_NOTIFICATION, notification)
                 }
             }
         }

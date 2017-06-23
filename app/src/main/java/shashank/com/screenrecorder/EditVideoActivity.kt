@@ -98,6 +98,14 @@ class EditVideoActivity : AppCompatActivity(), CustomRange.RangeChangeListener, 
         handler.postDelayed(runnable, 1000)
     }
 
+    override fun showBusy() {
+        AlertDialog.Builder(this)
+                .setTitle("Busy!")
+                .setMessage("Please wait while we finish up with your earlier media transformation")
+                .setPositiveButton("Ok", { _, _ ->  })
+                .create().show()
+    }
+
     override fun onClick(v: View) {
         when (v.id) {
             R.id.video_container -> {

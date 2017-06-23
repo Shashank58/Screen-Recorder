@@ -22,5 +22,7 @@ interface EditVideoContract {
         fun finishedSuccessFully(path: String?)
 
         fun onFailure(message: String)
+
+        fun showBusy()
     }
 }

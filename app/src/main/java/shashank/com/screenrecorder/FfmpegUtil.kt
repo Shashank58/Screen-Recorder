@@ -22,15 +22,21 @@ import java.io.File
  * Created by shashankm on 09/03/17.
  */
 class FfmpegUtil(val context: Context, val response: EditVideoContract.Response) : EditVideoContract {
-    var ffmpeg: FFmpeg = FFmpeg.getInstance(context)
-    var isTwice = false
-    var count = 0
-    lateinit var path: String
-    lateinit var type: String
-    var duration: Int = -1
+    companion object {
+        var isIdle = true
+    }
+    private var ffmpeg: FFmpeg = FFmpeg.getInstance(context)
+    private var isTwice = false
+    private var count = 0
+    private lateinit var path: String
+    private lateinit var type: String
+    private var duration = -1
 
     override fun trimVideo(file: File, duration: Int, start: String, end: String) {
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Trimming video"))
+        if (!isIdle) {
+            response.showBusy()
+            return
+        }
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -43,6 +49,8 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
+                isIdle = false
+                context.startService(context.intentFor<ConvertMediaService>("title" to "Trimming video"))
                 val croppedFile: File = getFile(".mp4", null) ?: return@uiThread
                 val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", start, "-to", end, "-strict", "-2", "-async", "1", croppedFile.absolutePath)
                 path = croppedFile.absolutePath
@@ -54,10 +62,10 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun convertVideoToGif(file: File) {
-        Log.d("ExecuteHandler", "ffmpeg : STARTED NOW!")
-        isTwice = true
-        count = 0
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Converting your video to gif"))
+        if (!isIdle) {
+            response.showBusy()
+            return
+        }
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -70,6 +78,10 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
+                isIdle = false
+                isTwice = true
+                count = 0
+                context.startService(context.intentFor<ConvertMediaService>("title" to "Converting your video to gif"))
                 val gifFile: File = getFile(".gif", null) ?: return@uiThread
                 val pallet: File = getFile(".png", "pallet") ?: return@uiThread
                 val palletCommand = arrayOf("-i", file.absolutePath, "-vf", "fps=10,scale=320:-1:flags=lanczos,palettegen", pallet.absolutePath)
@@ -83,7 +95,10 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun slowDownVideo(file: File, duration: Int, quality: String, clipAudio: Boolean) {
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Slowing down video"))
+        if (!isIdle) {
+            response.showBusy()
+            return
+        }
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -96,6 +111,8 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
+                isIdle = false
+                context.startService(context.intentFor<ConvertMediaService>("title" to "Slowing down video"))
                 val slowedVideo: File = getFile(".mp4", null) ?: return@uiThread
                 path = slowedVideo.absolutePath
                 type = AppUtil.mimeType_Video
@@ -104,16 +121,19 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                     isTwice = true
                     val mutedVideo = getFile(".mp4", "mutedVideo") ?: return@uiThread
                     execFFmpegCommand(arrayOf("-i", file.absolutePath, "-an", mutedVideo.absolutePath))
-                    execFFmpegCommand(arrayOf("-i", mutedVideo.absolutePath, "-r", quality, "-filter:v", "setpts=3.5*PTS", "-preset", "ultrafast", slowedVideo.absolutePath))
+                    execFFmpegCommand(arrayOf("-i", mutedVideo.absolutePath, "-r", quality, "-filter:v", "setpts=4*PTS", "-preset", "ultrafast", slowedVideo.absolutePath))
                 } else {
-                    execFFmpegCommand(arrayOf("-i", file.absolutePath, "-r", quality, "-filter:v", "setpts=3.5*PTS", "-preset", "ultrafast", slowedVideo.absolutePath))
+                    execFFmpegCommand(arrayOf("-i", file.absolutePath, "-r", quality, "-filter:v", "setpts=4*PTS", "-preset", "ultrafast", slowedVideo.absolutePath))
                 }
             }
         }
     }
 
     override fun trimSong(file: File, start: String, difference: String) {
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Trimming song"))
+        if (!isIdle) {
+            response.showBusy()
+            return
+        }
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -126,6 +146,8 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
+                isIdle = false
+                context.startService(context.intentFor<ConvertMediaService>("title" to "Trimming song"))
                 val trimSong: File = getFile(".mp3", null) ?: return@uiThread
                 val command = arrayOf("-ss", start, "-t", difference, "-i", file.absolutePath, trimSong.absolutePath)
                 path = trimSong.absolutePath
@@ -137,7 +159,10 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
     }
 
     override fun mixVideoWithSong(songFile: File, videoFile: File) {
-        context.startService(context.intentFor<ConvertMediaService>("title" to "Mixing media"))
+        if (!isIdle) {
+            response.showBusy()
+            return
+        }
         doAsync {
             try {
                 val loadResponse: Load = Load()
@@ -150,6 +175,9 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 Log.d("FFMPEG", "ffmpeg : Exception")
             }
             uiThread {
+                isIdle = true
+                context.startService(context.intentFor<ConvertMediaService>("title" to "Mixing media"))
+
                 val mixedMedia: File = getFile(".mp4", null) ?: return@uiThread
                 val mutedVideo: File = getFile(".mp4", "mutedVideo") ?: return@uiThread
 
@@ -196,10 +224,10 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
         values.put(MediaStore.Video.Media.MIME_TYPE, type)
         values.put(MediaStore.MediaColumns.DATA, path)
 
-        context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
-        MediaScannerConnection.scanFile(context, arrayOf(path), arrayOf(type)) { path, uri ->
+        context.applicationContext.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+        MediaScannerConnection.scanFile(context.applicationContext, arrayOf(path), arrayOf(type)) { path, uri ->
             val intent = Intent(NotificationCallbacks.CONVERSION_SUCCESS)
-            intent.putExtra("path", path)
+            intent.putExtra("type", type)
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
         }
     }
@@ -250,7 +278,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
 
         override fun onFailure(message: String?) {
             super.onFailure(message)
-            response.onFailure("Could not perform said action!")
+            isIdle = true
             Log.d("ExecuteHandler", "ffmpeg : Failure " + message)
         }
 
@@ -266,8 +294,8 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 return
             }
 
+            isIdle = true
             isTwice = false
-
             addMediaToGallery()
             Log.d("ExecuteHandler", "ffmpeg : SUCCESS!")
         }
