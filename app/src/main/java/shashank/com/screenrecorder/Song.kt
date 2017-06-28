@@ -12,7 +12,8 @@ data class Song(val trackId: Long, val trackNo: Int, val artist: String?, val tr
     var rawArt: ByteArray? = null
 
     fun setRawArt(context: Context) {
-        mmr.setDataSource(context, ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, trackId))
+        val uri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, trackId)
+        if (uri != null) mmr.setDataSource(context, uri)
         this.rawArt = mmr.embeddedPicture
     }
 }
