@@ -213,6 +213,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                             }
 
                             AppUtil.CONVERT_VIDEO -> {
+                                showConvertingPopUp()
                                 editFile?.convertVideoToGif(File(Uri.parse(data).path))
                             }
                         }
@@ -227,12 +228,20 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                                 clip_audio_pop_up.visibility = View.GONE
                                 blur.visibility = View.GONE
                                 if (data != null) {
+                                    showConvertingPopUp()
                                     editFile?.slowDownVideo(File(Uri.parse(data).path), duration, "30", clipAudio)
                                 }
                             }
                         }).setInterpolator(interpolator).scaleY(0f).scaleX(0f).start()
             }
         }
+    }
+
+    private fun showConvertingPopUp() {
+        android.support.v7.app.AlertDialog.Builder(this@VideosActivity)
+                .setMessage("Your media conversion has started, you can track its progress in the notification bar")
+                .setPositiveButton("Ok", { _, _ ->  })
+                .create().show()
     }
 
     fun closeSongTrimPopup() {
@@ -348,6 +357,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                     val start: String = AppUtil.getTime(song_trim_range.startValue)
                     val difference: String = AppUtil.getTime(song_trim_range.endValue - song_trim_range.startValue)
                     editFile?.trimSong(File(Uri.parse(path).path), start, difference)
+                    showConvertingPopUp()
                 }
             }
 

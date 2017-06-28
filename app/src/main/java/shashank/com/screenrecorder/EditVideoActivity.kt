@@ -127,6 +127,11 @@ class EditVideoActivity : AppCompatActivity(), CustomRange.RangeChangeListener, 
                 val endTime = AppUtil.getTime(video_range_picker.endValue)
                 ffmpegUtil.trimVideo(File(Uri.parse(data).path), (video_range_picker.endValue - video_range_picker.startValue).toInt(),
                         startTime, endTime)
+
+                AlertDialog.Builder(this)
+                        .setMessage("Your media conversion has started, you can track its progress in the notification bar")
+                        .setPositiveButton("Ok", { _, _ ->  })
+                        .create().show()
             }
 
             R.id.back -> onBackPressed()

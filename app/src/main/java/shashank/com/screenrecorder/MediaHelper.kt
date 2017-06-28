@@ -20,7 +20,7 @@ class MediaHelper {
     val duration = MediaStore.Audio.Media.DURATION
     val album = MediaStore.Audio.Media.ALBUM
     val path = MediaStore.Audio.Media.DATA
-    var uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    var uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI!!
     val mediaPlayer = MediaPlayer()
 
     private var isMediaPlayerReleased = true
