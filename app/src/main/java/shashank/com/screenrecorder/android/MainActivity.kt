@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.android
 
 import android.Manifest
 import android.animation.Animator
@@ -24,6 +24,11 @@ import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.intentFor
+import shashank.com.screenrecorder.R
+import shashank.com.screenrecorder.recorder.RecordService
+import shashank.com.screenrecorder.recorder.ScreenRecordHelper
+import shashank.com.screenrecorder.util.AppUtil
+import shashank.com.screenrecorder.util.NotificationCallbacks
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, ScreenRecordHelper.RecordContract {

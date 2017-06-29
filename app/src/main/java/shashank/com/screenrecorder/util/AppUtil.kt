@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.util
 
 import java.util.*
 

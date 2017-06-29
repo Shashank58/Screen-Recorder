@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.android
 
 import android.app.ProgressDialog
 import android.net.Uri
@@ -9,6 +9,11 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_edit_video.*
+import shashank.com.screenrecorder.R
+import shashank.com.screenrecorder.helper.EditVideoContract
+import shashank.com.screenrecorder.helper.FfmpegHelper
+import shashank.com.screenrecorder.util.AppUtil
+import shashank.com.screenrecorder.util.CustomRange
 import java.io.File
 
 
@@ -121,7 +126,7 @@ class EditVideoActivity : AppCompatActivity(), CustomRange.RangeChangeListener, 
             }
 
             R.id.trim_video -> {
-                val ffmpegUtil = FfmpegUtil(this, this)
+                val ffmpegUtil = FfmpegHelper(this, this)
 
                 val startTime = AppUtil.getTime(video_range_picker.startValue)
                 val endTime = AppUtil.getTime(video_range_picker.endValue)

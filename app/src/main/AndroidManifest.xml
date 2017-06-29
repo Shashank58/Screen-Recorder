@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".android.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,23 +24,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".EditVideoActivity"
+            android:name=".android.EditVideoActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".VideosActivity"
+            android:name=".android.VideosActivity"
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".RecordService"
+            android:name=".recorder.RecordService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name=".MixMediaActivity"
+            android:name=".android.MixMediaActivity"
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".ConvertMediaService"
+            android:name=".util.ConvertMediaService"
             android:enabled="true"
             android:exported="true" />
 

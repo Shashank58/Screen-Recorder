@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder;
+package shashank.com.screenrecorder.util;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -13,6 +13,8 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+
+import shashank.com.screenrecorder.R;
 
 /**
  * Created by shashankm on 24/03/17.
@@ -64,7 +66,7 @@ public class CustomRange extends View implements View.OnTouchListener {
 
     private RangeChangeListener rangeChangeListener;
 
-    interface RangeChangeListener {
+    public interface RangeChangeListener {
         void onRangeChanged(float startValue, float endValue);
     }
 

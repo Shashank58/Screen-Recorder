@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.helper
 
 
 import android.content.ContentValues
@@ -15,13 +15,16 @@ import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedExceptio
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.uiThread
+import shashank.com.screenrecorder.util.ConvertMediaService
+import shashank.com.screenrecorder.util.NotificationCallbacks
+import shashank.com.screenrecorder.util.AppUtil
 import java.io.File
 
 
 /**
  * Created by shashankm on 09/03/17.
  */
-class FfmpegUtil(val context: Context, val response: EditVideoContract.Response) : EditVideoContract {
+class FfmpegHelper(val context: Context, val response: EditVideoContract.Response) : EditVideoContract {
     companion object {
         var isIdle = true
     }
@@ -55,7 +58,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 val command = arrayOf("-y", "-i", file.absolutePath, "-crf:", "27", "-preset", "veryfast", "-ss", start, "-to", end, "-strict", "-2", "-async", "1", croppedFile.absolutePath)
                 path = croppedFile.absolutePath
                 type = AppUtil.mimeType_Video
-                this@FfmpegUtil.duration = duration
+                this@FfmpegHelper.duration = duration
                 execFFmpegCommand(command)
             }
         }
@@ -116,7 +119,7 @@ class FfmpegUtil(val context: Context, val response: EditVideoContract.Response)
                 val slowedVideo: File = getFile(".mp4", null) ?: return@uiThread
                 path = slowedVideo.absolutePath
                 type = AppUtil.mimeType_Video
-                this@FfmpegUtil.duration = duration
+                this@FfmpegHelper.duration = duration
                 if (clipAudio) {
                     isTwice = true
                     val mutedVideo = getFile(".mp4", "mutedVideo") ?: return@uiThread

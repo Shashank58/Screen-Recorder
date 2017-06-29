@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.util
 
 /**
  * Created by shashankm on 21/04/17.

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="shashank.com.screenrecorder.VideosActivity">
+    tools:context="shashank.com.screenrecorder.android.VideosActivity">
 
     <FrameLayout
         android:id="@+id/tool_bar"
@@ -153,7 +153,7 @@
                     android:textSize="12sp"
                     tools:text="00:00" />
 
-                <shashank.com.screenrecorder.CustomRange
+                <shashank.com.screenrecorder.util.CustomRange
                     android:id="@+id/song_trim_range"
                     android:layout_width="0dp"
                     android:layout_height="35dp"

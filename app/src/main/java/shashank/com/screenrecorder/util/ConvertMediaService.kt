@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.util
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -14,6 +14,9 @@ import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import org.jetbrains.anko.intentFor
+import shashank.com.screenrecorder.android.MainActivity
+import shashank.com.screenrecorder.R
+import shashank.com.screenrecorder.recorder.RecordService
 
 
 /**

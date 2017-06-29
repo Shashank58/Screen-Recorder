@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="shashank.com.screenrecorder.MixMediaActivity">
+    tools:context="shashank.com.screenrecorder.android.MixMediaActivity">
 
     <FrameLayout
         android:layout_width="match_parent"

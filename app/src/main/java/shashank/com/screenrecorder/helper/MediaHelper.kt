@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.helper
 
 import android.content.Context
 import android.database.Cursor
@@ -6,6 +6,8 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.MediaStore
+import shashank.com.screenrecorder.model.Song
+import shashank.com.screenrecorder.model.Video
 import java.io.IOException
 
 

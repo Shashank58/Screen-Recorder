@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.android
 
 import android.Manifest
 import android.animation.Animator
@@ -23,7 +23,16 @@ import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_videos.*
 import kotlinx.android.synthetic.main.song_card.view.*
 import kotlinx.android.synthetic.main.video_card.view.*
+import org.jetbrains.anko.contentView
 import org.jetbrains.anko.intentFor
+import shashank.com.screenrecorder.R
+import shashank.com.screenrecorder.helper.EditVideoContract
+import shashank.com.screenrecorder.model.Song
+import shashank.com.screenrecorder.model.Video
+import shashank.com.screenrecorder.util.AppUtil
+import shashank.com.screenrecorder.util.CustomRange
+import shashank.com.screenrecorder.helper.FfmpegHelper
+import shashank.com.screenrecorder.helper.MediaHelper
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -57,7 +66,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
                     .permission.RECORD_AUDIO), REQUEST_PERMISSION)
             return
         }
-
+        contentView.toString()
         setUpAdapter()
     }
 
@@ -66,7 +75,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
 
         videoAdapter = VideoAdapter()
         songAdapter = SongAdapter()
-        editFile = FfmpegUtil(this, this)
+        editFile = FfmpegHelper(this, this)
 
         purpose = intent.getIntExtra("purpose", 0)
 
@@ -269,7 +278,7 @@ class VideosActivity : AppCompatActivity(), EditVideoContract.Response, View.OnC
     inner class SongAdapter : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
         override fun getItemCount(): Int = songsList.size
 
-        override fun onBindViewHolder(holder: SongAdapter.SongViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.bind(songsList[position], position)
         }
 

@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.recorder
 
 import android.content.ContentValues
 import android.content.Intent
@@ -12,6 +12,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.util.SparseIntArray
+import shashank.com.screenrecorder.android.MainActivity
 import java.io.File
 import java.io.IOException
 
@@ -43,11 +44,11 @@ object ScreenRecordHelper {
 
     fun init(projectionManager: MediaProjectionManager, mediaRecorder: MediaRecorder, activity: MainActivity,
              screenDensity: Int, recordContract: RecordContract) {
-        this.projectionManager = projectionManager
-        this.mediaRecorder = mediaRecorder
-        this.activity = activity
-        this.screenDensity = screenDensity
-        this.recordContract = recordContract
+        ScreenRecordHelper.projectionManager = projectionManager
+        ScreenRecordHelper.mediaRecorder = mediaRecorder
+        ScreenRecordHelper.activity = activity
+        ScreenRecordHelper.screenDensity = screenDensity
+        ScreenRecordHelper.recordContract = recordContract
     }
 
     fun initRecording() {
@@ -156,11 +157,11 @@ object ScreenRecordHelper {
 
         override fun onStop() {
             super.onStop()
-            screenRecordHelper.mediaRecorder.stop()
-            screenRecordHelper.mediaRecorder.reset()
+            mediaRecorder.stop()
+            mediaRecorder.reset()
 
-            screenRecordHelper.mediaProjection = null
-            screenRecordHelper.stopScreenSharing()
+            mediaProjection = null
+            stopScreenSharing()
         }
     }
 

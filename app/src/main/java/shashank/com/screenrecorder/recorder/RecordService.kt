@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.recorder
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -11,6 +11,10 @@ import android.content.IntentFilter
 import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
 import android.widget.RemoteViews
+import shashank.com.screenrecorder.util.AppUtil
+import shashank.com.screenrecorder.android.MainActivity
+import shashank.com.screenrecorder.util.NotificationCallbacks
+import shashank.com.screenrecorder.R
 
 class RecordService : Service() {
 

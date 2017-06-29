@@ -1,4 +1,4 @@
-package shashank.com.screenrecorder
+package shashank.com.screenrecorder.android
 
 import android.Manifest
 import android.animation.Animator
@@ -21,6 +21,12 @@ import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_mix_media.*
 import kotlinx.android.synthetic.main.song_card.view.*
 import kotlinx.android.synthetic.main.video_card.view.*
+import shashank.com.screenrecorder.R
+import shashank.com.screenrecorder.helper.EditVideoContract
+import shashank.com.screenrecorder.model.Song
+import shashank.com.screenrecorder.model.Video
+import shashank.com.screenrecorder.helper.FfmpegHelper
+import shashank.com.screenrecorder.helper.MediaHelper
 import java.io.File
 
 
@@ -41,7 +47,7 @@ class MixMediaActivity : AppCompatActivity(), EditVideoContract.Response {
     lateinit private var songAdapter: SongAdapter
 
     private val ffmpegUtil: EditVideoContract by lazy {
-        FfmpegUtil(this, this)
+        FfmpegHelper(this, this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -214,7 +220,7 @@ class MixMediaActivity : AppCompatActivity(), EditVideoContract.Response {
         val colors: Array<Int> = arrayOf(R.color.red_a_100, R.color.pink_a_100, R.color.indigo_a_100, R.color.teal_a_100,
                 R.color.amber_a_100, R.color.orange_a_100, R.color.light_blue_a_100)
 
-        override fun onBindViewHolder(holder: SongAdapter.ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             //setAnimation(holder.itemView.song_card, position)
             val song: Song = songsList[position]
             with(song) {
@@ -238,7 +244,7 @@ class MixMediaActivity : AppCompatActivity(), EditVideoContract.Response {
 
         override fun getItemCount(): Int = songsList.size
 
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SongAdapter.ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             return ViewHolder(LayoutInflater.from(parent?.context).inflate(R.layout.song_card, parent, false))
         }
 
